@@ -27,3 +27,8 @@ Then edit the `.env` file to correspond to your configuration.
 # Start the project in dev mode
 bun start:dev
 ```
+
+## Paths
+
+- Swagger API -> `<url>/docs`
+- API -> `<url>/v<version>/`

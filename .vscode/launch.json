@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "bun",
+      "request": "launch",
+      "name": "Debug Nest Framework",
+      "program": "${workspaceFolder}/src/main.ts",
+      "cwd": "${workspaceFolder}",
+      "watchMode": true,
+      "stopOnEntry": false,
+      "internalConsoleOptions": "openOnSessionStart"
+    }
+  ]
+}
