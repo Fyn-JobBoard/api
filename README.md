@@ -1,6 +1,21 @@
 # API Fyn
 
-## Requierement
+## With Docker
+
+Run the following command to start the Docker container.
+This container will auto update files from `./src`.
+
+```sh
+# Configure the environement variables
+cp .env{.example,}
+
+# After you've edited the variables
+docker compose -f compose.dev.yml up
+```
+
+## Without Docker
+
+### Requirement
 
 The API uses a Postgres driver for the database, so you must have a running postgres to develop the API.
 
@@ -10,7 +25,7 @@ If you want you can use a docker container to do this:
 docker run -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres
 ```
 
-## Launch the project
+### Launch the project
 
 If this is the first time you launch the project, you need to configure environnement variables and install dependencies
 

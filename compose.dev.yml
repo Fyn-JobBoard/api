@@ -1,0 +1,28 @@
+name: Fyn - Developpement
+
+services:
+  fyn-db:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=fyn
+    volumes:
+      - fyn-db-data:/var/lib/postgresql/18
+    ports:
+      - 5432:5432
+  fyn-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - fyn-db
+    ports:
+      - 3000:3000
+
+volumes:
+  fyn-db-data:
