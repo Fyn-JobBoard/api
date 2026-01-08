@@ -1,7 +1,7 @@
 import { AccountTypes } from 'db/enums/accountTypes';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('accounts')
 export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
