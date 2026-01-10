@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import appDatasource from 'src/app.datasource';
+import { Student } from '../accounts/entities/students.entity';
 import { StudentsController } from './students.controller';
 import { StudentsService } from './students.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Student } from './students.entity';
-import appDatasource from 'src/app.datasource';
 
 describe('StudentsController', () => {
   let controller: StudentsController;

@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import appDatasource from 'src/app.datasource';
-import { Account } from './accounts.entity';
 import { AccountsService } from './accounts.service';
+import { Account } from './entities/accounts.entity';
 
 describe('AccountsService', () => {
   let service: AccountsService;

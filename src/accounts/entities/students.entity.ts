@@ -1,18 +1,10 @@
-import { Account } from 'src/accounts/accounts.entity';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { LinkedToAccount } from './accounts.entity';
 
 @Entity('students')
-export class Student {
-  @PrimaryColumn({
-    type: 'uuid',
-  })
+export class Student extends LinkedToAccount {
+  @PrimaryColumn('uuid')
   id: string;
-
-  @OneToOne(() => Account, (account) => account.id)
-  @JoinColumn({
-    name: 'id',
-  })
-  account: Account;
 
   @Column('varchar', { length: 200 })
   first_name: string;

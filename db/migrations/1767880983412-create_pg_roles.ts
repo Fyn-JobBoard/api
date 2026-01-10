@@ -1,5 +1,5 @@
-import { PGRoles, PGRolesPassword } from 'db/enums/roles';
 import assert from 'node:assert';
+import { PGRoles, PGRolesPassword } from 'src/common/enums/roles';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreatePgRoles1767880983412 implements MigrationInterface {

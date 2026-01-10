@@ -1,4 +1,4 @@
-import { AccountTypes } from 'db/enums/accountTypes';
+import { AccountTypes } from 'src/common/enums/accountTypes';
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateAccountTable1767886845486 implements MigrationInterface {
