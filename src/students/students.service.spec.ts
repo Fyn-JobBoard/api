@@ -1,4 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import appDatasource from 'src/app.datasource';
+import { Student } from './students.entity';
 import { StudentsService } from './students.service';
 
 describe('StudentsService', () => {
@@ -6,6 +9,10 @@ describe('StudentsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot(appDatasource.options),
+        TypeOrmModule.forFeature([Student]),
+      ],
       providers: [StudentsService],
     }).compile();
 
