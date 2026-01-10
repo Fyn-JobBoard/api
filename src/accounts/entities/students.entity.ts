@@ -15,7 +15,7 @@ export class Student extends LinkedToAccount {
   birthdate: Date;
 
   @Column('text', {
-    default: '',
+    default: "''",
   })
   bio: string;
 
