@@ -1,0 +1,18 @@
+name: Pull Request Validator
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  tests:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v6
+      - name: Installing bun
+        uses: oven-sh/setup-bun@v2
+      - name: Installing deps
+        run: bun install
+      - name: Launch tests
+        run: bun test
