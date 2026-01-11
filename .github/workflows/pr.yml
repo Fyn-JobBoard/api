@@ -26,11 +26,11 @@ jobs:
         with:
           envFile: '.github/workflows/ci.env'
           expand: true
-          export: false
+          export: true
 
       - name: Debug env
         run: |
-          echo $DB_HOST $DB_PORT $DB_USERNAME $APP_URL
+          echo "var --> $DB_HOST $DB_PORT $DB_USERNAME $APP_URL"
           exit 1
 
       - name: Setup a postgres db
