@@ -22,6 +22,7 @@ export class Managed extends LinkedToAccount {
 
   @Column('bigint', {
     unsigned: true,
+    default: '0',
   })
   permissions: number;
 

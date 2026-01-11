@@ -1,6 +1,7 @@
-import { Column, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { LinkedToAccount } from './accounts.entity';
 
+@Entity('companies')
 export class Company extends LinkedToAccount {
   @PrimaryColumn('uuid')
   id: string;
@@ -28,5 +29,5 @@ export class Company extends LinkedToAccount {
     length: 200,
     nullable: true,
   })
-  website: string;
+  website_url: string;
 }
