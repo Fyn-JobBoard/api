@@ -22,6 +22,11 @@ jobs:
           envFile: '.github/workflows/ci.env'
           expand: true
           export: false
+      
+      - name: Debug env
+        run: |
+          echo $DB_HOST $DB_PORT $DB_USERNAME $APP_URL
+          exit 1
 
       - name: Setup a postgres db
         uses: ikalnytskyi/action-setup-postgres@v8
