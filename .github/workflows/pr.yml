@@ -16,13 +16,18 @@ jobs:
       - uses: actions/checkout@v6
       - name: Installing bun
         uses: oven-sh/setup-bun@v2
+
+      - name: Cat env
+        run: |
+          cat .github/workflows/ci.env
+
       - name: Setup env variables
         uses: cardinalby/export-env-action@v2
         with:
           envFile: '.github/workflows/ci.env'
           expand: true
           export: false
-      
+
       - name: Debug env
         run: |
           echo $DB_HOST $DB_PORT $DB_USERNAME $APP_URL
