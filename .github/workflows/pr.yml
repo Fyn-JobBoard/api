@@ -27,8 +27,6 @@ jobs:
         run: |
           sudo locale-gen en_US.UTF-8
           sudo update-locale LANG=en_US.UTF-8
-          echo "Locale générée :"
-          locale -a | grep en_US.UTF-8  # Vérifie que la locale est bien disponible
 
       - name: Setup a postgres db
         uses: ikalnytskyi/action-setup-postgres@v8
