@@ -14,12 +14,6 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v6
-      - name: Installing bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Cat env
-        run: |
-          cat .github/workflows/ci.env
 
       - name: Setup env variables
         uses: cardinalby/export-env-action@v2
@@ -28,11 +22,6 @@ jobs:
           expand: true
           export: true
 
-      - name: Debug env
-        run: |
-          echo "var --> $DB_HOST $DB_PORT $DB_USERNAME $APP_URL"
-          exit 1
-
       - name: Setup a postgres db
         uses: ikalnytskyi/action-setup-postgres@v8
         with:
@@ -40,6 +29,9 @@ jobs:
           password: ${{ env.DB_PASSWORD }}
           username: ${{ env.DB_USERNAME }}
           port: ${{ env.DB_PORT }}
+
+      - name: Installing bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Installing deps
         run: bun install
