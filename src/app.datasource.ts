@@ -8,7 +8,7 @@ export default new DataSource({
   host: process.env.DB_HOST ?? 'localhost',
   port: +(process.env.DB_PORT ?? 3306),
   username: process.env.DB_USERNAME ?? 'root',
-  password: process.env.DB_PASSWORD,
+  password: process.env.DB_PASSWORD ?? '',
   entities: [join(__dirname, '/**/*.entity.{js,ts}')],
   migrations: [join(__dirname, '../db/migrations/*.{ts,js}')],
 });
