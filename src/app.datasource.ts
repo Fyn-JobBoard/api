@@ -1,17 +1,11 @@
 import { join } from 'node:path';
 import { DataSource } from 'typeorm';
 
-console.log({
-  type: 'postgres',
-  applicationName: 'fyn-api',
-  database: process.env.DB_DATABASE ?? 'fyn',
-  host: process.env.DB_HOST ?? 'localhost',
-  port: +(process.env.DB_PORT ?? 3306),
-  username: process.env.DB_USERNAME ?? 'root',
-  password: process.env.DB_PASSWORD ?? '',
-  entities: [join(__dirname, '/**/*.entity.{js,ts}')],
-  migrations: [join(__dirname, '../db/migrations/*.{ts,js}')],
-});
+console.log(
+  'DB_PASSWORD:',
+  process.env.DB_PASSWORD,
+  typeof process.env.DB_PASSWORD,
+);
 
 export default new DataSource({
   type: 'postgres',
@@ -20,7 +14,7 @@ export default new DataSource({
   host: process.env.DB_HOST ?? 'localhost',
   port: +(process.env.DB_PORT ?? 3306),
   username: process.env.DB_USERNAME ?? 'root',
-  password: process.env.DB_PASSWORD ?? '',
+  password: process.env.DB_PASSWORD || '',
   entities: [join(__dirname, '/**/*.entity.{js,ts}')],
   migrations: [join(__dirname, '../db/migrations/*.{ts,js}')],
 });
