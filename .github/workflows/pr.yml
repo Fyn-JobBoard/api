@@ -4,10 +4,10 @@ on:
   pull_request:
     branches:
       - dev
-  push:
+  pull_request_target:
     branches:
-      # For testing purpose:
-      - feat/ci
+      - dev
+      - main
 
 jobs:
   tests:
@@ -41,6 +41,7 @@ jobs:
 
       - name: Installing deps
         run: bun install
+
       - name: Run migrations
         run: bun orm:connected migration:run
 
