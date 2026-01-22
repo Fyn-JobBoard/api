@@ -10,12 +10,12 @@ export class CreateStudentTable1768058485289 implements MigrationInterface {
           {
             name: 'first_name',
             type: 'varchar',
-            length: '200',
+            length: '60',
           },
           {
             name: 'last_name',
             type: 'varchar',
-            length: '200',
+            length: '60',
           },
           {
             name: 'birthdate',
@@ -23,7 +23,8 @@ export class CreateStudentTable1768058485289 implements MigrationInterface {
           },
           {
             name: 'bio',
-            type: 'text',
+            type: 'varchar',
+            length: '1024',
             default: "''",
           },
           {

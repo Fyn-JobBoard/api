@@ -1,25 +1,27 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateAdminTable1768125671486 implements MigrationInterface {
+export class CreateSkills1769028072946 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'admins',
+        name: 'skills',
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'int',
             isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
-            name: 'first_name',
+            name: 'name',
             type: 'varchar',
             length: '60',
+            isUnique: true,
           },
           {
-            name: 'last_name',
-            type: 'varchar',
-            length: '60',
+            name: 'type',
+            type: 'skill_type',
           },
         ],
       }),
@@ -27,6 +29,6 @@ export class CreateAdminTable1768125671486 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('admins');
+    await queryRunner.dropTable('skills');
   }
 }

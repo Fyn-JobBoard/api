@@ -1,13 +1,8 @@
-import { AccountTypes } from 'src/common/enums/accountTypes';
+import { AccountStatus } from 'src/common/enums/accountStatus';
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateAccountTable1767886845486 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `CREATE TYPE account_type AS ENUM (${Object.values(AccountTypes)
-        .map((t) => `'${t}'`)
-        .join(',')})`,
-    );
     await queryRunner.createTable(
       new Table({
         name: 'accounts',
@@ -34,6 +29,11 @@ export class CreateAccountTable1767886845486 implements MigrationInterface {
             name: 'type',
             type: 'account_type',
           },
+          {
+            name: 'status',
+            type: 'account_status',
+            default: `'${AccountStatus[AccountStatus.Created]}'`,
+          },
         ],
       }),
       true,
@@ -42,6 +42,5 @@ export class CreateAccountTable1767886845486 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropTable('accounts', true);
-    await queryRunner.query('DROP TYPE account_type');
   }
 }

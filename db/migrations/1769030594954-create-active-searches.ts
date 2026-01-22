@@ -1,33 +1,31 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateManagedTable1768125190648 implements MigrationInterface {
+export class CreateActiveSearches1769030594954 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'managed',
+        name: 'active_searches',
         columns: [
-          { name: 'id', isPrimary: true, type: 'uuid' },
           {
-            name: 'name',
-            type: 'varchar',
-            length: '80',
+            name: 'id',
+            type: 'int',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
-            name: 'author_id',
+            name: 'student_id',
             type: 'uuid',
-            isNullable: true,
           },
           {
-            name: 'permissions',
-            type: 'bigint',
-            unsigned: true,
-            default: '0',
+            name: 'criterias',
+            type: 'json',
           },
         ],
         foreignKeys: [
           {
-            columnNames: ['author_id'],
-            referencedTableName: 'accounts',
+            columnNames: ['student_id'],
+            referencedTableName: 'students',
             referencedColumnNames: ['id'],
             onDelete: 'cascade',
             onUpdate: 'cascade',
@@ -38,6 +36,6 @@ export class CreateManagedTable1768125190648 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('managed');
+    await queryRunner.dropTable('active_searches');
   }
 }

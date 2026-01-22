@@ -14,11 +14,12 @@ export class CreateCompanyTable1768125786301 implements MigrationInterface {
           {
             name: 'name',
             type: 'varchar',
-            length: '250',
+            length: '70',
           },
           {
             name: 'bio',
-            type: 'text',
+            type: 'varchar',
+            length: '4096',
             default: "''",
           },
           {
