@@ -35,7 +35,7 @@ jobs:
         uses: ikalnytskyi/action-setup-postgres@v8
         with:
           database: ${{ env.DB_DATABASE }}
-          password: ${{ env.DB_PASSWORD }}
+          password: "${{ env.DB_PASSWORD }}"
           username: ${{ env.DB_USERNAME }}
           port: ${{ env.DB_PORT }}
 
