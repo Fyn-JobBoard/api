@@ -46,8 +46,6 @@ jobs:
         run: bun install
 
       - name: Run migrations
-        env:
-          DB_PASSWORD: ''
         run: bun orm:connected migration:run
 
       - name: Launch tests
