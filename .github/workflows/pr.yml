@@ -7,7 +7,7 @@ on:
   push:
     branches:
       # For testing purpose:
-      - feat/ci
+      - fix/ci
 
 jobs:
   tests:
