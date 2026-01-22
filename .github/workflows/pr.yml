@@ -43,7 +43,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Installing deps
-        run: bun install
+        run: bun install && bun install dotenv
 
       - name: Run migrations
         run: bun orm:connected migration:run
