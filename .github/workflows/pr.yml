@@ -22,6 +22,9 @@ jobs:
           expand: true
           export: true
 
+      - name: Debug env
+        run: printenv
+
       # Used for postgres to access it
       - name: Generate en_US.UTF-8 locale
         run: |

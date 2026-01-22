@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { DataSource } from 'typeorm';
+console.log(process.env);
 
 export default new DataSource({
   type: 'postgres',
