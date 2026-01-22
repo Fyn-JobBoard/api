@@ -43,6 +43,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Installing deps
+        # Don't know why, here we need to install dotenv to make pg works with custom environement variables
         run: bun install && bun install dotenv
 
       - name: Run migrations
