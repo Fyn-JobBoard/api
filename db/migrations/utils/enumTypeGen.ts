@@ -10,7 +10,6 @@ export class PGEnumToType implements MigrationInterface {
     for (const [type, enum_object] of Object.entries(this.enums)) {
       await queryRunner.query(
         `CREATE TYPE ${type} AS ENUM (${Object.values(enum_object)
-          .filter((t) => typeof t === 'string')
           .map((t) => `'${t}'`)
           .join(',')})`,
       );
