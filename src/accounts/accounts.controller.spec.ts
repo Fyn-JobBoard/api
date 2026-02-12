@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import appDatasource from 'src/app.datasource';
 import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
-import { Account } from './entities/accounts.entity';
+import { Account } from './entities/account.entity';
 
 describe('AccountsController', () => {
   let controller: AccountsController;

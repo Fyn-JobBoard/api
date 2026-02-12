@@ -1,5 +1,13 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { LinkedToAccount } from './accounts.entity';
+import { Experience } from 'src/experiences/entities/experience.entity';
+import { Job } from 'src/jobs/entities/job.entity';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  type Relation,
+} from 'typeorm';
+import { LinkedToAccount } from './account.entity';
 
 @Entity('companies')
 export class Company extends LinkedToAccount {
@@ -30,4 +38,17 @@ export class Company extends LinkedToAccount {
     nullable: true,
   })
   website_url: string;
+
+  @OneToMany(() => Job, (job) => job.company, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  jobs: Relation<Job>[];
+
+  @OneToMany(() => Experience, (experience) => experience.company, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
+  referenced_experiences: Relation<Experience>[];
 }

@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { LinkedToAccount } from './accounts.entity';
+import { LinkedToAccount } from './account.entity';
 
 @Entity('admins')
 export class Administrator extends LinkedToAccount {
