@@ -1,3 +1,4 @@
+import { Experience } from 'src/experiences/entities/experience.entity';
 import { Job } from 'src/jobs/entities/job.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { LinkedToAccount } from './account.entity';
@@ -37,4 +38,11 @@ export class Company extends LinkedToAccount {
     onUpdate: 'CASCADE',
   })
   jobs: Job[];
+
+  @OneToMany(() => Experience, (experience) => experience.company, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
+  referenced_experiences: Experience[];
 }

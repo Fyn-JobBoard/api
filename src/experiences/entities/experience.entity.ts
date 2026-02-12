@@ -1,3 +1,5 @@
+import { Company } from 'src/accounts/entities/company.entity';
+import { Student } from 'src/accounts/entities/student.entity';
 import {
   Column,
   Entity,
@@ -8,7 +10,7 @@ import {
 
 @Entity('experiences')
 export class Experience {
-  @PrimaryGeneratedColumn({})
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column('varchar', {
@@ -22,35 +24,28 @@ export class Experience {
   })
   description: string;
 
-  @Column('varchar', {
-    length: 2048,
-  })
-  begin_date: string;
+  @Column('date')
+  begin_date: Date;
+
   @Column('date', {
     nullable: true,
   })
-  end_date: string | null;
+  end_date?: Date;
 
-  @Column('uuid')
-  student_id: string;
-
-  @ManyToOne(() => require('../../accounts/entities/students.entity').Student, {
+  @ManyToOne(() => Student, (student) => student.experiences, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
-  student: any;
+  student: Student;
 
-  @Column({ type: 'uuid', nullable: true })
-  company_id?: string;
-
-  @ManyToOne(() => require('../../companies/entities/company.entity').Company, {
+  @ManyToOne(() => Company, {
     nullable: true,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'company_id' })
-  company?: any;
+  company?: Company;
 
   @Column({ type: 'varchar', length: 70, nullable: true })
   company_fallback_name?: string;

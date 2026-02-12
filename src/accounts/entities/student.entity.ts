@@ -1,5 +1,6 @@
 import { ActiveSearch } from 'src/active-searches/entities/active-search.entity';
 import { Application } from 'src/applications/entities/application.entity';
+import { Experience } from 'src/experiences/entities/experience.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { LinkedToAccount } from './account.entity';
 
@@ -38,4 +39,10 @@ export class Student extends LinkedToAccount {
     onUpdate: 'CASCADE',
   })
   activeSearches: ActiveSearch[];
+
+  @OneToMany(() => Experience, (experience) => experience.student, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  experiences: Experience[];
 }
