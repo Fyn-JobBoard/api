@@ -1,6 +1,6 @@
 export enum ApplicationStatus {
-  Draft,
-  Sent,
-  Accepted,
-  Refused,
+  Draft = 'draft',
+  Sent = 'sent',
+  Accepted = 'accepted',
+  Refused = 'refused',
 }

@@ -1,4 +1,4 @@
 export enum SkillTypes {
-  Soft,
-  Hard,
+  Soft = 'soft',
+  Hard = 'hard',
 }
