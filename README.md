@@ -22,10 +22,10 @@ The API uses a Postgres driver for the database, so you must have a running post
 If you want you can use a docker container to do this:
 
 ```sh
-docker run -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=fyn -e POSTGRES_USER=postgres  -p 5432:5432 postgres
+docker run -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=fyn -e POSTGRES_USER=postgres -p 5432:5432 postgres
 ```
 
-> replaces properties related to the .env
+> Replace variables by your corresponding one
 
 ### Launch the project
 
