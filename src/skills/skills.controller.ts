@@ -5,7 +5,7 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { SkillTypes } from 'src/common/enums/skillsTypess';
+import type { SkillTypes } from 'src/common/enums/skillsTypess';
 import { SkillsService } from './skills.service';
 
 @Controller('skills')
