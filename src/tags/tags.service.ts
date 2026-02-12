@@ -1,26 +1,77 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTagDto } from './dto/create-tag.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateTagDto } from './dto/update-tag.dto';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { Tag } from './entities/tag.entity';
 @Injectable()
 export class TagsService {
-  create(createTagDto: CreateTagDto) {
-    return 'This action adds a new tag';
+  constructor(@InjectRepository(Tag) private tagsRepository: Repository<Tag>) {}
+
+  async create(createTagDto: { name: string }): Promise<Tag> {
+    const tag = this.tagsRepository.create(createTagDto);
+    return this.tagsRepository.save(tag);
   }
 
-  findAll() {
-    return `This action returns all tags`;
+  findAll(): Promise<Tag[]> {
+    return this.tagsRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tag`;
+  async findOne(id: number): Promise<Tag> {
+    const tag = await this.tagsRepository.findOne({ where: { id } });
+    if (!tag) {
+      throw new NotFoundException(`Tag #${id} not found`);
+    }
+
+    return tag;
   }
 
-  update(id: number, updateTagDto: UpdateTagDto) {
-    return `This action updates a #${id} tag`;
+  async update(id: number, updateTagDto: UpdateTagDto): Promise<Tag> {
+    const tag = await this.findOne(id);
+    Object.assign(tag, updateTagDto);
+    return this.tagsRepository.save(tag);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tag`;
+  async remove(id: number): Promise<void> {
+    const tag = await this.findOne(id);
+    await this.tagsRepository.remove(tag);
+  }
+
+  async findOrCreate(tagNames: string[]): Promise<Tag[]> {
+    if (tagNames.length === 0) {
+      return [];
+    }
+
+    const existingTags = await this.tagsRepository.findBy({
+      name: In(tagNames),
+    });
+    const existingTagNames = existingTags.map((tag) => tag.name);
+    const newTagNames = tagNames.filter(
+      (name) => !existingTagNames.includes(name),
+    );
+
+    const newTags = newTagNames.map((name) =>
+      this.tagsRepository.create({ name }),
+    );
+
+    const savedNewTags =
+      newTags.length > 0 ? await this.tagsRepository.save(newTags) : [];
+
+    return [...existingTags, ...savedNewTags];
+  }
+  async findExistingOrFail(tagNames: string[]): Promise<Tag[]> {
+    if (!tagNames.length) return [];
+
+    const tags = await this.tagsRepository.findBy({
+      name: In(tagNames),
+    });
+
+    if (tags.length !== tagNames.length) {
+      const foundNames = tags.map((t) => t.name);
+      const missing = tagNames.filter((name) => !foundNames.includes(name));
+
+      throw new NotFoundException(`Tag not found: ${missing.join(', ')}`);
+    }
+
+    return tags;
   }
 }
