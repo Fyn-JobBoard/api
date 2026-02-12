@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 
 @Entity('experiences')
@@ -37,7 +38,7 @@ export class Experience {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
-  student: Student;
+  student: Relation<Student>;
 
   @ManyToOne(() => Company, {
     nullable: true,
@@ -45,7 +46,7 @@ export class Experience {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'company_id' })
-  company?: Company;
+  company?: Relation<Company>;
 
   @Column({ type: 'varchar', length: 70, nullable: true })
   company_fallback_name?: string;

@@ -10,6 +10,7 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryColumn,
+  type Relation,
 } from 'typeorm';
 import { LinkedToAccount } from './account.entity';
 
@@ -41,25 +42,25 @@ export class Student extends LinkedToAccount {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  applications: Application[];
+  applications: Relation<Application>[];
 
   @OneToMany(() => ActiveSearch, (search) => search.student, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  activeSearches: ActiveSearch[];
+  activeSearches: Relation<ActiveSearch>[];
 
   @OneToMany(() => Experience, (experience) => experience.student, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  experiences: Experience[];
+  experiences: Relation<Experience>[];
 
   @OneToMany(() => Formation, (formation) => formation.student, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  formations: Formation[];
+  formations: Relation<Formation>[];
 
   @ManyToMany(() => Skill, (skill) => skill.students, {
     onDelete: 'CASCADE',
@@ -74,5 +75,5 @@ export class Student extends LinkedToAccount {
       name: 'student_id',
     },
   })
-  skills: Skill[];
+  skills: Relation<Skill>[];
 }

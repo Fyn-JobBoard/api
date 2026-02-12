@@ -5,10 +5,11 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
+import { Company } from './company.entity';
 import { Managed } from './managed.entity';
 import { Student } from './student.entity';
-import { Company } from './company.entity';
 
 @Entity('accounts')
 export class Account {
@@ -44,5 +45,5 @@ export abstract class LinkedToAccount {
   @JoinColumn({
     name: 'id',
   })
-  account: Account;
+  account: Relation<Account>;
 }

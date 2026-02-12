@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 
 @Entity('skills')
@@ -35,5 +36,5 @@ export class Skill {
       name: 'skill_id',
     },
   })
-  students: Student[];
+  students: Relation<Student>[];
 }

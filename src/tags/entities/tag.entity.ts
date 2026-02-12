@@ -5,6 +5,7 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 
 @Entity('tags')
@@ -31,5 +32,5 @@ export class Tag {
       name: 'tag_id',
     },
   })
-  jobs: Job[];
+  jobs: Relation<Job>[];
 }

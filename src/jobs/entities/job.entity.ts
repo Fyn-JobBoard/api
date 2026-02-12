@@ -15,7 +15,9 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
+
 @Entity('jobs')
 export class Job {
   @PrimaryGeneratedColumn('uuid')
@@ -129,20 +131,20 @@ export class Job {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'activity_domain_id' })
-  activity_domain: ActivityDomain;
+  activity_domain: Relation<ActivityDomain>;
 
   @ManyToOne(() => Company, (company) => company.jobs, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'company_id' })
-  company: Company;
+  company: Relation<Company>;
 
   @OneToMany(() => Application, (application) => application.job, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  applications: Application[];
+  applications: Relation<Application>[];
 
   @ManyToMany(() => Tag, (tag) => tag.jobs, {
     onDelete: 'CASCADE',
@@ -157,5 +159,5 @@ export class Job {
       name: 'job_id',
     },
   })
-  tags: Tag[];
+  tags: Relation<Tag>[];
 }

@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 
 @Entity('formations')
@@ -36,7 +37,7 @@ export class Formation {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
-  student: Student;
+  student: Relation<Student>;
 
   @ManyToOne(() => ActivityDomain, {
     nullable: true,
@@ -44,5 +45,5 @@ export class Formation {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'activity_domain_id' })
-  activity_domain?: ActivityDomain;
+  activity_domain?: Relation<ActivityDomain>;
 }

@@ -7,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 
 @Entity('applications')
@@ -30,12 +31,12 @@ export class Application {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
-  student: Student;
+  student: Relation<Student>;
 
   @ManyToOne(() => Job, (job) => job.applications, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'job_id' })
-  job: Job;
+  job: Relation<Job>;
 }

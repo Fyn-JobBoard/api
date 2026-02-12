@@ -1,5 +1,12 @@
 import { Job } from 'src/jobs/entities/job.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from 'typeorm';
+
 @Entity('activity_domains')
 export class ActivityDomain {
   @PrimaryGeneratedColumn('increment')
@@ -21,5 +28,5 @@ export class ActivityDomain {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  jobs: Job[];
+  jobs: Relation<Job>[];
 }

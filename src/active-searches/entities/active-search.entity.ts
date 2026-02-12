@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import type { SearchPredicates } from '../types/search';
 
@@ -18,7 +19,7 @@ export class ActiveSearch {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
-  student: Student;
+  student: Relation<Student>;
 
   @Column({ type: 'json' })
   criterias: SearchPredicates;

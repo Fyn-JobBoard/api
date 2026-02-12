@@ -1,5 +1,12 @@
 import PermissionManager from 'src/common/utils/permissionManager';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  type Relation,
+} from 'typeorm';
 import { Account, LinkedToAccount } from './account.entity';
 
 @Entity('managed')
@@ -18,7 +25,7 @@ export class Managed extends LinkedToAccount {
   @JoinColumn({
     name: 'author_id',
   })
-  author?: Account;
+  author?: Relation<Account>;
 
   @Column('bigint', {
     unsigned: true,
