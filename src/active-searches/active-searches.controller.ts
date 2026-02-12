@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ActiveSearchesService } from './active-searches.service';
 import { CreateActiveSearchDto } from './dto/create-active-search.dto';
 import { UpdateActiveSearchDto } from './dto/update-active-search.dto';
@@ -23,7 +31,10 @@ export class ActiveSearchesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateActiveSearchDto: UpdateActiveSearchDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateActiveSearchDto: UpdateActiveSearchDto,
+  ) {
     return this.activeSearchesService.update(+id, updateActiveSearchDto);
   }
 
