@@ -1,4 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import appDatasource from 'src/app.datasource';
+import { SkillsModule } from './skills.module';
 import { SkillsService } from './skills.service';
 
 describe('SkillsService', () => {
@@ -6,7 +9,7 @@ describe('SkillsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SkillsService],
+      imports: [TypeOrmModule.forRoot(appDatasource.options), SkillsModule],
     }).compile();
 
     service = module.get<SkillsService>(SkillsService);
