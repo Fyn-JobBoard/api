@@ -1,3 +1,5 @@
+import { Student } from 'src/accounts/entities/student.entity';
+import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
 import {
   Column,
   Entity,
@@ -8,7 +10,7 @@ import {
 
 @Entity('formations')
 export class Formation {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column('varchar', { length: 100 })
@@ -21,30 +23,26 @@ export class Formation {
   description?: string;
 
   @Column('date', { nullable: true })
-  obtention_date?: string;
+  obtention_date?: Date;
 
-  @Column('int', { comment: 'Stored as timestamp seconds' })
+  /**
+   * Stored as timestamp seconds
+   */
+  @Column('int')
   duration: number;
 
-  @Column('uuid')
-  student_id: string;
-
-  @Column('int', {
-    nullable: true,
-    comment: 'Null if no activity domain fit the formation',
+  @ManyToOne(() => Student, (student) => student.formations, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
-  activity_domain_id?: number;
+  @JoinColumn({ name: 'student_id' })
+  student: Student;
 
-  @ManyToOne(
-    () =>
-      require('../../activity-domains/entities/activity-domain.entity')
-        .ActivityDomain,
-    {
-      nullable: true,
-      onDelete: 'SET NULL',
-      onUpdate: 'CASCADE',
-    },
-  )
+  @ManyToOne(() => ActivityDomain, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'activity_domain_id' })
-  activity_domain?: any;
+  activity_domain?: ActivityDomain;
 }

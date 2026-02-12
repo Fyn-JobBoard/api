@@ -1,6 +1,7 @@
 import { ActiveSearch } from 'src/active-searches/entities/active-search.entity';
 import { Application } from 'src/applications/entities/application.entity';
 import { Experience } from 'src/experiences/entities/experience.entity';
+import { Formation } from 'src/formations/entities/formation.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { LinkedToAccount } from './account.entity';
 
@@ -45,4 +46,10 @@ export class Student extends LinkedToAccount {
     onUpdate: 'CASCADE',
   })
   experiences: Experience[];
+
+  @OneToMany(() => Formation, (formation) => formation.student, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  formations: Formation[];
 }

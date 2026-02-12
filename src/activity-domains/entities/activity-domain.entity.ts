@@ -2,7 +2,7 @@ import { Job } from 'src/jobs/entities/job.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('activity_domains')
 export class ActivityDomain {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column('varchar', {
