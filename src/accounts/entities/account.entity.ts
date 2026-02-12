@@ -7,9 +7,6 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
-import { Company } from './company.entity';
-import { Managed } from './managed.entity';
-import { Student } from './student.entity';
 
 @Entity('accounts')
 export class Account {
@@ -31,13 +28,6 @@ export class Account {
     enum: AccountTypes,
   })
   type: AccountTypes;
-
-  /**
-   * Retreive the associed account type
-   */
-  fetch_type(): Student | Managed | Company | null {
-    return null;
-  }
 }
 
 export abstract class LinkedToAccount {
