@@ -1,21 +1,39 @@
+import { Student } from 'src/accounts/entities/student.entity';
 import { SkillTypes } from 'src/common/enums/skillsTypess';
-import { StudentSkill } from './student-skill.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('skills')
 export class Skill {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
-    @Column('varchar', {
-        unique: true,
-        length: 60,
-    })
-    name: string;
+  @Column('varchar', {
+    unique: true,
+    length: 60,
+  })
+  name: string;
 
-    @Column('enum', { enum: SkillTypes, enumName: 'skill_type' })
-    type: SkillTypes;
+  @Column('enum', { enum: SkillTypes, enumName: 'skill_type' })
+  type: SkillTypes;
 
-    @OneToMany(() => StudentSkill, studentSkill => studentSkill.skill)
-    student_skills: StudentSkill[];
+  @ManyToMany(() => Student, (student) => student.skills, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'student_skills',
+    joinColumn: {
+      name: 'student_id',
+    },
+    inverseJoinColumn: {
+      name: 'skill_id',
+    },
+  })
+  students: Student[];
 }

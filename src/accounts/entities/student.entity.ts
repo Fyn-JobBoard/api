@@ -2,7 +2,15 @@ import { ActiveSearch } from 'src/active-searches/entities/active-search.entity'
 import { Application } from 'src/applications/entities/application.entity';
 import { Experience } from 'src/experiences/entities/experience.entity';
 import { Formation } from 'src/formations/entities/formation.entity';
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { Skill } from 'src/skills/entities/skill.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { LinkedToAccount } from './account.entity';
 
 @Entity('students')
@@ -52,4 +60,19 @@ export class Student extends LinkedToAccount {
     onUpdate: 'CASCADE',
   })
   formations: Formation[];
+
+  @ManyToMany(() => Skill, (skill) => skill.students, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'student_skills',
+    joinColumn: {
+      name: 'skill_id',
+    },
+    inverseJoinColumn: {
+      name: 'student_id',
+    },
+  })
+  skills: Skill[];
 }

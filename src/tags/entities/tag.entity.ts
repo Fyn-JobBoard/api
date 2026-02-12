@@ -9,7 +9,7 @@ import {
 
 @Entity('tags')
 export class Tag {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column('varchar', {
