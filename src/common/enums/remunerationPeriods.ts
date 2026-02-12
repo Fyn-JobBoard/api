@@ -1,8 +1,8 @@
 export enum RemunerationPeriods {
-  Single,
+  Single = 'single',
 
-  Dayly,
-  Weekly,
-  Monthly,
-  Annualy,
+  Dayly = 'dayly',
+  Weekly = 'weekly',
+  Monthly = 'monthly',
+  Annualy = 'annualy',
 }

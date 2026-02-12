@@ -1,6 +1,6 @@
 export enum AccountStatus {
-  Created,
-  Confirmed,
-  Banned,
-  Deleted,
+  Created = 'created',
+  Confirmed = 'confirmed',
+  Banned = 'banned',
+  Deleted = 'delete',
 }

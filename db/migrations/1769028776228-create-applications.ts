@@ -22,7 +22,7 @@ export class CreateApplications1769028776228 implements MigrationInterface {
           {
             name: 'status',
             type: 'application_status',
-            default: `'${ApplicationStatus[ApplicationStatus.Draft]}'`,
+            default: `'${ApplicationStatus.Draft}'`,
           },
 
           {
