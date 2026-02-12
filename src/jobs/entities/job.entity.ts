@@ -1,15 +1,17 @@
+import { Company } from 'src/accounts/entities/company.entity';
+import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
+import { Application } from 'src/applications/entities/application.entity';
 import { ContractTypes } from 'src/common/enums/contractTypes';
 import { Languages } from 'src/common/enums/languages';
 import { RemunerationPeriods } from 'src/common/enums/remunerationPeriods';
 import { WorkingModes } from 'src/common/enums/workingModes';
-import { Application } from 'src/applications/entities/application.entity';
-import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
-import { Company } from 'src/accounts/entities/company.entity';
-import { JobTag } from 'src/jobs/entities/job-tag.entity';
+import { Tag } from 'src/tags/entities/tag.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -94,16 +96,20 @@ export class Job {
   })
   period_start?: Date;
 
+  /**
+   * Stored as timestamp seconds
+   */
   @Column('int', {
     unsigned: true,
-    comment: 'Stored as timestamp seconds',
   })
   period_duration: number;
 
+  /**
+   * Stored as timestamp seconds
+   */
   @Column('int', {
     unsigned: true,
     nullable: true,
-    comment: 'Stored as timestamp seconds',
   })
   min_formation_duration?: number;
 
@@ -118,28 +124,38 @@ export class Job {
   })
   moderation_feedback?: string;
 
-  @Column({ type: 'int' })
-  activity_domain_id: number;
-
-  @ManyToOne(
-    () => ActivityDomain,
-    activityDomain => activityDomain.jobs,
-    { onDelete: 'RESTRICT', onUpdate: 'CASCADE' },
-  )
+  @ManyToOne(() => ActivityDomain, (activityDomain) => activityDomain.jobs, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'activity_domain_id' })
   activity_domain: ActivityDomain;
 
-  @Column({ type: 'uuid' })
-  company_id: string;
-
-  @ManyToOne(
-    () => Company,
-    company => company.jobs,
-    { onDelete: 'CASCADE', onUpdate: 'CASCADE' },
-  )
+  @ManyToOne(() => Company, (company) => company.jobs, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'company_id' })
   company: Company;
 
-  @OneToMany(() => Application, application => application.job)
+  @OneToMany(() => Application, (application) => application.job, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   applications: Application[];
+
+  @ManyToMany(() => Tag, (tag) => tag.jobs, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'job_tags',
+    joinColumn: {
+      name: 'tag_id',
+    },
+    inverseJoinColumn: {
+      name: 'job_id',
+    },
+  })
+  tags: Tag[];
 }

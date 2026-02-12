@@ -1,5 +1,11 @@
-import { JobTag } from 'src/jobs/entities/job-tag.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Job } from 'src/jobs/entities/job.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('tags')
 export class Tag {
@@ -12,6 +18,18 @@ export class Tag {
   })
   name: string;
 
-  @OneToMany(() => JobTag, jobTag => jobTag.tag)
-  job_tags: JobTag[];
+  @ManyToMany(() => Job, (job) => job.tags, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'job_tags',
+    joinColumn: {
+      name: 'job_id',
+    },
+    inverseJoinColumn: {
+      name: 'tag_id',
+    },
+  })
+  jobs: Job[];
 }
