@@ -3,7 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Repository } from 'typeorm';
-import { Account } from './entities/account.entity';
+import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
+import { CreateCompanyDto } from './dto/companies/create-company.dto';
+import { CreateAccountDto } from './dto/create-account.dto';
+import { CreateManagedDto } from './dto/managed/create-managed.dto';
+import { CreateStudentDto } from './dto/students/create-student.dto';
+import { Account, AccountModel } from './entities/account.entity';
 import { Administrator } from './entities/admin.entity';
 import { Company } from './entities/company.entity';
 import { Managed } from './entities/managed.entity';
@@ -16,14 +21,7 @@ export class AccountsService {
     private readonly accounts: Repository<Account>,
   ) {}
 
-  /**
-   * Retreive the associed account type
-   */
-  public async getModelOf(
-    account: Account,
-  ): Promise<Student | Managed | Company | Administrator> {
-    const { type } = account;
-
+  protected getRelatedModelOf(type: AccountTypes): AccountModel {
     const model =
       type === AccountTypes.Admin
         ? Administrator
@@ -34,12 +32,60 @@ export class AccountsService {
             : type === AccountTypes.Student
               ? Student
               : null;
-    assert(
-      model,
-      `Cannot find model's type from account type ${type} (on account '${account.id}').`,
-    );
 
-    const modelRepository = new Repository(model, this.accounts.manager);
-    return modelRepository.findOneByOrFail({ id: account.id });
+    assert(model, `Cannot find model's type from account type ${type}.`);
+    return model;
+  }
+  protected getRepositoryOf(model: AccountModel) {
+    return new Repository(model, this.accounts.manager);
+  }
+
+  public async find(id: string) {
+    return this.accounts.findOneBy({ id });
+  }
+  public async findModel(id: string, model: AccountModel) {
+    return this.getRepositoryOf(model).findOneBy({ id });
+  }
+
+  /**
+   * Retreive the associed account type
+   */
+  public async getModelOf(
+    account: Account,
+  ): Promise<Student | Managed | Company | Administrator> {
+    return this.getRepositoryOf(
+      this.getRelatedModelOf(account.type),
+    ).findOneByOrFail({ id: account.id });
+  }
+
+  public async create(
+    account: CreateAccountDto,
+    dto:
+      | CreateStudentDto
+      | CreateAdministratorDto
+      | CreateCompanyDto
+      | CreateManagedDto,
+  ) {
+    const type =
+      dto instanceof CreateStudentDto
+        ? AccountTypes.Student
+        : dto instanceof CreateAdministratorDto
+          ? AccountTypes.Admin
+          : dto instanceof CreateCompanyDto
+            ? AccountTypes.Company
+            : dto instanceof CreateManagedDto
+              ? AccountTypes.Managed
+              : null;
+    assert(type);
+
+    const insertion = await this.accounts.insert({
+      ...account,
+      type,
+    });
+    const created = await this.accounts.findOneByOrFail({
+      id: insertion.identifiers[0].id as string,
+    });
+
+    // todo create account's model row
   }
 }

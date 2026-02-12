@@ -7,6 +7,16 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
+import type { Administrator } from './admin.entity';
+import type { Company } from './company.entity';
+import type { Managed } from './managed.entity';
+import type { Student } from './student.entity';
+
+export type AccountModel =
+  | typeof Student
+  | typeof Managed
+  | typeof Company
+  | typeof Administrator;
 
 @Entity('accounts')
 export class Account {
