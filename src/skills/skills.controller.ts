@@ -10,12 +10,16 @@ import {
   Version,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { AccountsService } from 'src/accounts/accounts.service';
 import { SkillTypes } from 'src/common/enums/skillsTypes';
 import { SkillsService } from './skills.service';
 
 @Controller('skills')
 export class SkillsController {
-  constructor(private readonly service: SkillsService) {}
+  constructor(
+    private readonly service: SkillsService,
+    private readonly account: AccountsService,
+  ) {}
 
   @Get('/')
   @Version('1')
