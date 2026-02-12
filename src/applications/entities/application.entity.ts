@@ -25,18 +25,12 @@ export class Application {
   })
   status: ApplicationStatus;
 
-  @Column('uuid')
-  student_id: string;
-
   @ManyToOne(() => Student, (student) => student.applications, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
   student: Student;
-
-  @Column('uuid')
-  job_id: string;
 
   @ManyToOne(() => Job, (job) => job.applications, {
     onDelete: 'CASCADE',
