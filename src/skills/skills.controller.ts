@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   NotFoundException,
   NotImplementedException,
@@ -74,12 +75,39 @@ export class SkillsController {
     required: false,
     type: 'uuid',
     description:
-      "The student's id to which you want to apply the tag. If ommited, it applies to yourself.",
+      "The student's id to which you want to apply the skill. If ommited, it applies to yourself.",
   })
   @ApiOperation({
     description: 'Apply a skill to a student or to yourself',
   })
   public apply(
+    @Param('id')
+    id: number,
+    @Param('student_id')
+    student_id?: string,
+  ) {
+    throw new NotImplementedException();
+  }
+
+  @Delete('/:id/:student_id')
+  @Version('1')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the skill to delete',
+    required: true,
+    type: 'number',
+  })
+  @ApiParam({
+    name: 'student_id',
+    required: false,
+    type: 'uuid',
+    description:
+      "The student's id to which you want to delete the skill. If ommited, it deletes to yourself.",
+  })
+  @ApiOperation({
+    description: 'Remove a skill to a student or to yourself',
+  })
+  public remove(
     @Param('id')
     id: number,
     @Param('student_id')
