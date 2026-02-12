@@ -7,7 +7,7 @@ import {
   Version,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { SkillTypes } from 'src/common/enums/skillsTypess';
+import { SkillTypes } from 'src/common/enums/skillsTypes';
 import { SkillsService } from './skills.service';
 
 @Controller('skills')
