@@ -4,8 +4,10 @@ import {
   NotFoundException,
   Param,
   Query,
+  Version,
 } from '@nestjs/common';
-import type { SkillTypes } from 'src/common/enums/skillsTypess';
+import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { SkillTypes } from 'src/common/enums/skillsTypess';
 import { SkillsService } from './skills.service';
 
 @Controller('skills')
@@ -13,6 +15,21 @@ export class SkillsController {
   constructor(private readonly service: SkillsService) {}
 
   @Get('/')
+  @Version('1')
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: 'string',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    type: 'enum',
+    enum: SkillTypes,
+  })
+  @ApiOperation({
+    description: 'Find skills based on their name and/or type',
+  })
   public async get(
     @Query('name')
     name?: string,
@@ -23,6 +40,11 @@ export class SkillsController {
   }
 
   @Get('/:id')
+  @Version('1')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the tag',
+  })
   public async find(
     @Param('id')
     id: number,
