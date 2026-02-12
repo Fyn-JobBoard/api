@@ -1,7 +1,6 @@
-import { Experience } from 'src/experiences/entities/experience.entity';
 import { Job } from 'src/jobs/entities/job.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { LinkedToAccount } from './accounts.entity';
+import { LinkedToAccount } from './account.entity';
 
 @Entity('companies')
 export class Company extends LinkedToAccount {
@@ -33,7 +32,9 @@ export class Company extends LinkedToAccount {
   })
   website_url: string;
 
-  @OneToMany(() => Job, job => job.company)
+  @OneToMany(() => Job, (job) => job.company, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   jobs: Job[];
-
 }

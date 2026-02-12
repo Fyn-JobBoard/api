@@ -7,7 +7,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Managed } from './managed.entity';
-import { Student } from './students.entity';
+import { Student } from './student.entity';
+import { Company } from './company.entity';
 
 @Entity('accounts')
 export class Account {
@@ -33,7 +34,7 @@ export class Account {
   /**
    * Retreive the associed account type
    */
-  fetch_type(): Student | Managed | null {
+  fetch_type(): Student | Managed | Company | null {
     return null;
   }
 }

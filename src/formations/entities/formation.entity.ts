@@ -1,43 +1,50 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { ManyToOne, JoinColumn } from 'typeorm';
-import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
-import { Student } from 'src/accounts/entities/students.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('formations')
 export class Formation {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column('varchar', { length: 100 })
-    title: string;
+  @Column('varchar', { length: 100 })
+  title: string;
 
-    @Column('varchar', { length: 200, nullable: true })
-    info_url?: string;
-    
-    @Column('varchar', { length: 1024, nullable: true })
-    description?: string;
+  @Column('varchar', { length: 200, nullable: true })
+  info_url?: string;
 
-    @Column('date', { nullable: true })
-    obtention_date?: string;
+  @Column('varchar', { length: 1024, nullable: true })
+  description?: string;
 
-    @Column('int', { comment: 'Stored as timestamp seconds' })
-    duration: number;
+  @Column('date', { nullable: true })
+  obtention_date?: string;
 
-    @Column('uuid')
-    student_id: string;
+  @Column('int', { comment: 'Stored as timestamp seconds' })
+  duration: number;
 
-    @Column('int', { nullable: true, comment: 'Null if no activity domain fit the formation' })
-    activity_domain_id?: number;
+  @Column('uuid')
+  student_id: string;
 
-    @ManyToOne(
-    () => require('../../activity-domains/entities/activity-domain.entity').ActivityDomain,
+  @Column('int', {
+    nullable: true,
+    comment: 'Null if no activity domain fit the formation',
+  })
+  activity_domain_id?: number;
+
+  @ManyToOne(
+    () =>
+      require('../../activity-domains/entities/activity-domain.entity')
+        .ActivityDomain,
     {
       nullable: true,
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
-    }
+    },
   )
   @JoinColumn({ name: 'activity_domain_id' })
   activity_domain?: any;
-
 }

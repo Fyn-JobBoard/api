@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import appDatasource from 'src/app.datasource';
-import { Student } from '../accounts/entities/students.entity';
+import { Student } from '../accounts/entities/student.entity';
 import { StudentsController } from './students.controller';
 import { StudentsService } from './students.service';
 

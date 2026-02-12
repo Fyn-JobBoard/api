@@ -1,4 +1,4 @@
-import { Student } from 'src/accounts/entities/students.entity';
+import { Student } from 'src/accounts/entities/student.entity';
 import {
   Column,
   Entity,
@@ -13,7 +13,7 @@ export class ActiveSearch {
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @ManyToOne(() => Student, {
+  @ManyToOne(() => Student, (student) => student.activeSearches, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

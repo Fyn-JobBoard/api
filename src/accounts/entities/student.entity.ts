@@ -1,10 +1,7 @@
-import { Application } from 'src/applications/entities/application.entity';
 import { ActiveSearch } from 'src/active-searches/entities/active-search.entity';
-import { Experience } from 'src/experiences/entities/experience.entity';
-import { Formation } from 'src/formations/entities/formation.entity';
-import { StudentSkill } from 'src/skills/entities/student-skill.entity';
+import { Application } from 'src/applications/entities/application.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { LinkedToAccount } from './accounts.entity';
+import { LinkedToAccount } from './account.entity';
 
 @Entity('students')
 export class Student extends LinkedToAccount {
@@ -30,6 +27,15 @@ export class Student extends LinkedToAccount {
   })
   links: string[];
 
-  @OneToMany(() => Application, application => application.student)
+  @OneToMany(() => Application, (application) => application.student, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   applications: Application[];
+
+  @OneToMany(() => ActiveSearch, (search) => search.student, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  activeSearches: ActiveSearch[];
 }

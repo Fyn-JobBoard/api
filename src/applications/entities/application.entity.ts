@@ -1,6 +1,6 @@
+import { Student } from 'src/accounts/entities/student.entity';
 import { ApplicationStatus } from 'src/common/enums/applicationStatus';
 import { Job } from 'src/jobs/entities/job.entity';
-import { Student } from 'src/accounts/entities/students.entity';
 import {
   Column,
   Entity,
@@ -28,7 +28,7 @@ export class Application {
   @Column('uuid')
   student_id: string;
 
-  @ManyToOne(() => Student, student => student.applications, {
+  @ManyToOne(() => Student, (student) => student.applications, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
@@ -38,7 +38,7 @@ export class Application {
   @Column('uuid')
   job_id: string;
 
-  @ManyToOne(() => Job, job => job.applications, {
+  @ManyToOne(() => Job, (job) => job.applications, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

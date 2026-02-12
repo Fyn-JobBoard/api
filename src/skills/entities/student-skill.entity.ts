@@ -1,5 +1,3 @@
-import { Skill } from './skill.entity';
-import { Student } from 'src/accounts/entities/students.entity';
 import {
   Column,
   Entity,
@@ -7,6 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Skill } from './skill.entity';
 
 @Entity('student_skills')
 export class StudentSkill {
@@ -16,7 +15,7 @@ export class StudentSkill {
   @Column('int')
   skill_id: number;
 
-  @ManyToOne(() => Skill, skill => skill.student_skills, {
+  @ManyToOne(() => Skill, (skill) => skill.student_skills, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
@@ -26,13 +25,10 @@ export class StudentSkill {
   @Column('uuid')
   student_id: string;
 
-  @ManyToOne(
-    () => require('../../accounts/entities/students.entity').Student,
-    {
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    }
-  )
+  @ManyToOne(() => require('../../accounts/entities/students.entity').Student, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'student_id' })
   student: any;
 }

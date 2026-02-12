@@ -1,6 +1,6 @@
 import PermissionManager from 'src/common/utils/permissionManager';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Account, LinkedToAccount } from './accounts.entity';
+import { Account, LinkedToAccount } from './account.entity';
 
 @Entity('managed')
 export class Managed extends LinkedToAccount {
