@@ -17,7 +17,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  SwaggerModule.setup('/docs', app, () =>
+  SwaggerModule.setup('/', app, () =>
     SwaggerModule.createDocument(
       app,
       new DocumentBuilder()

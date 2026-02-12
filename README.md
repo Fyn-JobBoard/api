@@ -47,5 +47,7 @@ bun start:dev
 
 ## Paths
 
-- Swagger API -> `<url>/docs`
+- Swagger API -> `<url>`
+  - YAML version: `<url>/-yaml`
+  - JSON version: `<url>/-json`
 - API -> `<url>/v<version>/`
