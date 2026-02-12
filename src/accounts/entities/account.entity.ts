@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import {
   Column,
@@ -10,7 +9,6 @@ import {
 } from 'typeorm';
 
 @Entity('accounts')
-@Injectable()
 export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
