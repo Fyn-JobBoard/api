@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Experience } from 'src/experiences/entities/experience.entity';
+import { Job } from 'src/jobs/entities/job.entity';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { LinkedToAccount } from './accounts.entity';
 
 @Entity('companies')
@@ -30,4 +32,8 @@ export class Company extends LinkedToAccount {
     nullable: true,
   })
   website_url: string;
+
+  @OneToMany(() => Job, job => job.company)
+  jobs: Job[];
+
 }
