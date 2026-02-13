@@ -58,6 +58,10 @@ export class AccountsService {
     ).findOneByOrFail({ id: account.id });
   }
 
+  /**
+   * Create an account with type based on the provided DTO
+   * todo -> Password hashing
+   */
   public async create(
     account: CreateAccountDto,
     dto:
@@ -82,10 +86,22 @@ export class AccountsService {
       ...account,
       type,
     });
+
     const created = await this.accounts.findOneByOrFail({
       id: insertion.identifiers[0].id as string,
     });
 
-    // todo create account's model row
+    const repository = this.getRepositoryOf(this.getRelatedModelOf(type));
+    await repository.insert({
+      id: created.id,
+      ...dto,
+    });
+
+    return this.getModelOf(created);
+  }
+
+  public async delete(account: Account | string) {
+    const account_id = typeof account === 'string' ? account : account.id;
+    await this.accounts.delete(account_id);
   }
 }

@@ -41,7 +41,9 @@ export class Account {
 }
 
 export abstract class LinkedToAccount {
-  @OneToOne(() => Account, (account) => account.id)
+  @OneToOne(() => Account, (account) => account.id, {
+    eager: true,
+  })
   @JoinColumn({
     name: 'id',
   })
