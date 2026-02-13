@@ -1,19 +1,23 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpException,
+  InternalServerErrorException,
   NotFoundException,
   NotImplementedException,
   Param,
+  Patch,
   Put,
   Query,
   Version,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { Student } from 'src/accounts/entities/student.entity';
 import { SkillTypes } from 'src/common/enums/skillsTypes';
+import { CreateSkillDto } from './dto/create-skill.dto';
 import { SkillsService } from './skills.service';
 
 @Controller('skills')
@@ -66,6 +70,46 @@ export class SkillsController {
     if (!found) throw new NotFoundException();
 
     return found;
+  }
+
+  @Patch('/:student_id')
+  @Version('1')
+  @ApiOperation({
+    description:
+      'Add a skill to a student (or yourself). If the skill does not exists, create it and asign it.',
+  })
+  @ApiParam({
+    name: 'student_id',
+    type: 'uuid',
+    required: false,
+    description: 'If given, the student to which apply the skill',
+  })
+  @ApiBody({
+    type: CreateSkillDto,
+    required: true,
+    description: 'The skill to find or create, then to apply.',
+  })
+  public async upsert(
+    @Body()
+    skill: CreateSkillDto,
+    @Param('student_id')
+    student_id?: string,
+  ) {
+    if (!student_id) throw new NotImplementedException();
+
+    const student = await this.account.findModel(student_id, Student);
+    if (!student) throw new NotFoundException();
+
+    const found = await this.service.get(skill);
+    if (found.length > 1)
+      throw new InternalServerErrorException(
+        'the query answered multiple skills.',
+      );
+
+    const upserted = await this.service.asign(found[0]?.id ?? skill, student);
+    if (upserted instanceof HttpException) throw upserted;
+
+    return upserted;
   }
 
   @Put('/:id/:student_id')

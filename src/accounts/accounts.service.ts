@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
 import { hash } from 'bcrypt';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -45,14 +45,18 @@ export class AccountsService {
   }
 
   public async find(id: string) {
-    return this.accounts.findOneBy({ id });
+    return this.accounts.findOneBy({
+      id: Raw((alias) => `(${alias})::text = :id`, { id }),
+    });
   }
   public async findModel<Model extends AccountModel>(
     id: string,
     model: Model,
   ): Promise<InstanceType<Model> | null> {
     //@ts-expect-error TSame issue as the "getRepositoryOf" method. The id property is present on all AccountModels.
-    return this.getRepositoryOf(model).findOneBy({ id });
+    return this.getRepositoryOf(model).findOneBy({
+      id: Raw((alias) => `(${alias})::text = :id`, { id }),
+    });
   }
 
   /**
