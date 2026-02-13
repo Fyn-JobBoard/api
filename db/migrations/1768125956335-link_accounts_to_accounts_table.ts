@@ -6,6 +6,8 @@ export class LinkAccountsToAccountsTable1768125956335 implements MigrationInterf
     columnNames: ['id'],
     referencedTableName: 'accounts',
     referencedColumnNames: ['id'],
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   });
 
   public async up(queryRunner: QueryRunner): Promise<void> {

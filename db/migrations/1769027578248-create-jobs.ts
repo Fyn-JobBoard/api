@@ -12,6 +12,7 @@ export class CreateJobs1769027578248 implements MigrationInterface {
             type: 'uuid',
             isPrimary: true,
             generationStrategy: 'uuid',
+            default: 'gen_random_uuid()',
           },
           {
             name: 'title',
