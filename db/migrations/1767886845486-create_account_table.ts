@@ -12,6 +12,7 @@ export class CreateAccountTable1767886845486 implements MigrationInterface {
             type: 'uuid',
             isPrimary: true,
             generationStrategy: 'uuid',
+            default: 'gen_random_uuid()',
           },
           {
             name: 'email',
