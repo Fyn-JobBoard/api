@@ -1,5 +1,5 @@
 import { Student } from 'src/accounts/entities/student.entity';
-import { SkillTypes } from 'src/common/enums/skillsTypess';
+import { SkillTypes } from 'src/common/enums/skillsTypes';
 import {
   Column,
   Entity,

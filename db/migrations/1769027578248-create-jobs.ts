@@ -70,7 +70,7 @@ export class CreateJobs1769027578248 implements MigrationInterface {
           {
             name: 'remuneration_period',
             type: 'remuneration_period',
-            default: `'${RemunerationPeriods[RemunerationPeriods.Single]}'`,
+            default: `'${RemunerationPeriods.Single}'`,
           },
           {
             name: 'contract',

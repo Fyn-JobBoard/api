@@ -1,5 +1,5 @@
 export enum ContractTypes {
-  Stage,
-  Internship,
-  AlternatingStage,
+  Stage = 'stage',
+  Internship = 'internship',
+  AlternatingStage = 'alternating_stage',
 }

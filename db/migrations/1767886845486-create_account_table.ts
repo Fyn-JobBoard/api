@@ -33,7 +33,7 @@ export class CreateAccountTable1767886845486 implements MigrationInterface {
           {
             name: 'status',
             type: 'account_status',
-            default: `'${AccountStatus[AccountStatus.Created]}'`,
+            default: `'${AccountStatus.Created}'`,
           },
         ],
       }),
