@@ -2,6 +2,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   NotFoundException,
   NotImplementedException,
   Param,
@@ -11,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { AccountsService } from 'src/accounts/accounts.service';
+import { Student } from 'src/accounts/entities/student.entity';
 import { SkillTypes } from 'src/common/enums/skillsTypes';
 import { SkillsService } from './skills.service';
 
@@ -84,13 +86,21 @@ export class SkillsController {
   @ApiOperation({
     description: 'Apply a skill to a student or to yourself',
   })
-  public apply(
+  public async apply(
     @Param('id')
     id: number,
     @Param('student_id')
     student_id?: string,
   ) {
-    throw new NotImplementedException();
+    if (!student_id) throw new NotImplementedException();
+
+    const student = await this.account.findModel(student_id, Student);
+    if (!student) throw new NotFoundException();
+
+    const skill = await this.service.asign(id, student);
+    if (skill instanceof HttpException) throw skill;
+
+    return skill;
   }
 
   @Delete('/:id/:student_id')
@@ -111,12 +121,20 @@ export class SkillsController {
   @ApiOperation({
     description: 'Remove a skill to a student or to yourself',
   })
-  public remove(
+  public async remove(
     @Param('id')
     id: number,
     @Param('student_id')
     student_id?: string,
   ) {
-    throw new NotImplementedException();
+    if (!student_id) throw new NotImplementedException();
+
+    const student = await this.account.findModel(student_id, Student);
+    if (!student) throw new NotFoundException();
+
+    const skill = await this.service.remove(id, student);
+    if (skill instanceof HttpException) throw skill;
+
+    return skill;
   }
 }
