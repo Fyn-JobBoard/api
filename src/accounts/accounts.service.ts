@@ -37,14 +37,21 @@ export class AccountsService {
     assert(model, `Cannot find model's type from account type ${type}.`);
     return model;
   }
-  protected getRepositoryOf(model: AccountModel) {
+  protected getRepositoryOf<Model extends AccountModel>(
+    model: Model,
+  ): Repository<InstanceType<Model>> {
+    //@ts-expect-error Typescript just can't understand that apparently. If not used, it takes only the Administrator entity type.
     return new Repository(model, this.accounts.manager);
   }
 
   public async find(id: string) {
     return this.accounts.findOneBy({ id });
   }
-  public async findModel(id: string, model: AccountModel) {
+  public async findModel<Model extends AccountModel>(
+    id: string,
+    model: Model,
+  ): Promise<InstanceType<Model> | null> {
+    //@ts-expect-error TSame issue as the "getRepositoryOf" method. The id property is present on all AccountModels.
     return this.getRepositoryOf(model).findOneBy({ id });
   }
 
