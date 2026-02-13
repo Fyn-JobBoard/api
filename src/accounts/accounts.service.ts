@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
+import { hash } from 'bcrypt';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Repository } from 'typeorm';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
@@ -84,6 +85,7 @@ export class AccountsService {
 
     const insertion = await this.accounts.insert({
       ...account,
+      password: await hash(account.password, process.env.BCRYPT_SALT ?? 10),
       type,
     });
 
@@ -103,5 +105,9 @@ export class AccountsService {
   public async delete(account: Account | string) {
     const account_id = typeof account === 'string' ? account : account.id;
     await this.accounts.delete(account_id);
+  }
+
+  public async bulkDelete(account_ids: string[]) {
+    await this.accounts.delete(account_ids);
   }
 }

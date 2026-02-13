@@ -5,6 +5,9 @@ import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
 import { Account } from './entities/account.entity';
+import { Administrator } from './entities/admin.entity';
+import { Company } from './entities/company.entity';
+import { Managed } from './entities/managed.entity';
 import { Student } from './entities/student.entity';
 
 describe('AccountsService', () => {
@@ -26,7 +29,9 @@ describe('AccountsService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a student account', async () => {
+  describe('should create account properly', () => {
+    let created: Student | Managed | Company | Administrator;
+    const PASSWORD = 'abcd1234';
     const student_dto = Object.assign(new CreateStudentDto(), {
       first_name: 'Test',
       last_name: 'User',
@@ -35,12 +40,19 @@ describe('AccountsService', () => {
     });
     const account_dto = Object.assign(new CreateAccountDto(), {
       email: 'test@user.fr',
-      password: 'abcd1234',
+      password: PASSWORD,
     });
 
-    const created = await service.create(account_dto, student_dto);
-    expect(created).toBeInstanceOf(Student);
+    beforeEach(async () => {
+      created = await service.create(account_dto, student_dto);
+    });
 
-    await service.delete(created.account);
+    it('should create a student account', () =>
+      expect(created).toBeInstanceOf(Student));
+
+    it('should hash password', () =>
+      expect(created.account.password).not.toStrictEqual(PASSWORD));
+
+    afterEach(() => service.delete(created.account));
   });
 });
