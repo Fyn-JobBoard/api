@@ -32,6 +32,7 @@ export class CreateStudentTable1768058485289 implements MigrationInterface {
             type: 'varchar',
             length: '200',
             isArray: true,
+            default: '[]',
           },
         ],
       }),
