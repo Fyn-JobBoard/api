@@ -12,6 +12,7 @@ import { FormationsModule } from './formations/formations.module';
 import { JobsModule } from './jobs/jobs.module';
 import { SkillsModule } from './skills/skills.module';
 import { TagsModule } from './tags/tags.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TagsModule } from './tags/tags.module';
     FormationsModule,
     ApplicationsModule,
     ActiveSearchesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
