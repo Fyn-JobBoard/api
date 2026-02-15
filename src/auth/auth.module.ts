@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import type { StringValue } from 'ms';
-import { AccountsModule } from 'src/accounts/accounts.module';
+import { Account } from 'src/accounts/entities/account.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
@@ -13,7 +14,7 @@ import { AuthService } from './auth.service';
         expiresIn: (process.env.JWT_TTL as StringValue | undefined) ?? '4d',
       },
     }),
-    AccountsModule,
+    TypeOrmModule.forFeature([Account]),
   ],
   controllers: [AuthController],
   providers: [AuthService],
