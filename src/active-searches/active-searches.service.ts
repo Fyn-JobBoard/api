@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
-import { CreateActiveSearchDto } from './dto/create-active-search.dto';
-import { UpdateActiveSearchDto } from './dto/update-active-search.dto';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Student } from 'src/accounts/entities/student.entity';
+import { createCheckers } from 'ts-interface-checker';
+import { Repository } from 'typeorm';
+import { ActiveSearch } from './entities/active-search.entity';
+import type { SearchPredicates } from './types/search';
+import SearchPredicatesSchema from './types/search.d-ti';
 
 @Injectable()
 export class ActiveSearchesService {
-  create(createActiveSearchDto: CreateActiveSearchDto) {
-    return 'This action adds a new activeSearch';
+  public readonly predicatesValidator = createCheckers(SearchPredicatesSchema)
+    .SearchPredicates;
+
+  constructor(
+    @InjectRepository(ActiveSearch)
+    private readonly searches: Repository<ActiveSearch>,
+  ) {}
+
+  /**
+   * List all active searches, or just a student's ones
+   */
+  public get(student?: Student) {
+    if (student) {
+      return this.searches.findBy({ student });
+    }
+    return this.searches.find();
+  }
+  /**
+   * Find an active search by its id
+   */
+  public find(id: number) {
+    return this.searches.findOneBy({
+      id,
+    });
   }
 
-  findAll() {
-    return `This action returns all activeSearches`;
+  /**
+   * Create a new active search for the given student
+   */
+  public async create(for_student: Student, criterias: SearchPredicates) {
+    const schemaErrors = this.predicatesValidator.strictValidate(criterias);
+    if (schemaErrors) {
+      return new NotAcceptableException(undefined, {
+        cause: schemaErrors,
+      });
+    }
+
+    const search = this.searches.create({
+      criterias,
+      student: for_student,
+    });
+    return this.searches.save(search);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} activeSearch`;
-  }
+  /**
+   * Delete all active searches for a student and return them
+   */
+  public async removeAll(of_student: Student) {
+    const deleted = await this.get(of_student);
+    await this.searches.delete({
+      student: of_student,
+    });
 
-  update(id: number, updateActiveSearchDto: UpdateActiveSearchDto) {
-    return `This action updates a #${id} activeSearch`;
+    return deleted;
   }
+  /**
+   * Delete a single active search and return it
+   */
+  public async delete(id: number) {
+    const deleted = await this.find(id);
+    if (!deleted) return new NotFoundException();
+    await this.searches.delete({ id });
 
-  remove(id: number) {
-    return `This action removes a #${id} activeSearch`;
+    return deleted;
   }
 }
