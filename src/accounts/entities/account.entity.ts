@@ -24,6 +24,11 @@ export class Account {
   })
   password: string;
 
+  @Column('integer', {
+    nullable: true,
+  })
+  jwt_version: number | null;
+
   @Column('enum', {
     enum: AccountTypes,
   })
