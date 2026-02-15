@@ -34,7 +34,6 @@ export class AuthService {
   /**
    * Invalidate all the JWTs of the given account and return the new JWT's version for this account
    * If the account does not have a jwt_version (= value is `null`), then create it and set it to `0`
-   * @todo
    */
   public async invalidateJwtsOf(account: Account): Promise<number> {
     const { jwt_version } = await this.accounts.findOneByOrFail({
