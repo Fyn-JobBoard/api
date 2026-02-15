@@ -11,7 +11,7 @@ import type { SearchPredicates } from '../types/search';
 
 @Entity('active_searches')
 export class ActiveSearch {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @ManyToOne(() => Student, (student) => student.activeSearches, {
