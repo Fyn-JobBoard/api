@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import appDatasource from 'src/app.datasource';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
-import { AccountRetreiverMiddleware } from './account-retreiver.middleware';
+import { RequestAccountResolverMiddleware } from './request-account-resolver.middleware';
 
 describe('AccountRetreiverMiddleware', () => {
   let authService: AuthService;
@@ -17,6 +17,6 @@ describe('AccountRetreiverMiddleware', () => {
   });
 
   it('should be defined', () => {
-    expect(new AccountRetreiverMiddleware(authService)).toBeDefined();
+    expect(new RequestAccountResolverMiddleware(authService)).toBeDefined();
   });
 });

@@ -10,7 +10,26 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
-export class AccountRetreiverMiddleware implements NestMiddleware {
+export class RequestAccountResolverMiddleware implements NestMiddleware {
+  private static REQUEST_KEY_STORE = 'account';
+
+  /**
+   * Get the given request's account.
+   *
+   * Note that the middleware must have been use to make this method return the account.
+   * @returns `undefined` if the middleware has not been used or the request's user is not logged in.
+   */
+  public static getRequestAccount(req: Request): Account | undefined {
+    if (
+      this.REQUEST_KEY_STORE in req &&
+      req[this.REQUEST_KEY_STORE] instanceof Account
+    ) {
+      return req[this.REQUEST_KEY_STORE] as Account;
+    }
+
+    return undefined;
+  }
+
   constructor(
     @Inject(AuthService)
     private authService: AuthService,
@@ -61,10 +80,14 @@ export class AccountRetreiverMiddleware implements NestMiddleware {
     }
 
     if (account) {
-      Object.defineProperty(req, 'account', {
-        value: account,
-        writable: false,
-      });
+      Object.defineProperty(
+        req,
+        RequestAccountResolverMiddleware.REQUEST_KEY_STORE,
+        {
+          value: account,
+          writable: false,
+        },
+      );
     }
 
     next();

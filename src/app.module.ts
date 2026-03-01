@@ -8,7 +8,7 @@ import appDatasource from './app.datasource';
 import { AppService } from './app.service';
 import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
-import { AccountRetreiverMiddleware } from './common/middlewares/account-retreiver/account-retreiver.middleware';
+import { RequestAccountResolverMiddleware } from './auth/middlewares/request-account-resolver/request-account-resolver.middleware';
 import { ExperiencesModule } from './experiences/experiences.module';
 import { FormationsModule } from './formations/formations.module';
 import { JobsModule } from './jobs/jobs.module';
@@ -34,6 +34,6 @@ import { TagsModule } from './tags/tags.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AccountRetreiverMiddleware).forRoutes('*');
+    consumer.apply(RequestAccountResolverMiddleware).forRoutes('*');
   }
 }
