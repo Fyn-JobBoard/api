@@ -62,7 +62,7 @@ export class AccountsService {
   /**
    * Retreive the associed account type
    */
-  public async getModelOf(
+  public getModelOf(
     account: Account,
   ): Promise<Student | Managed | Company | Administrator> {
     return this.getRepositoryOf(
@@ -72,7 +72,6 @@ export class AccountsService {
 
   /**
    * Create an account with type based on the provided DTO
-   * todo -> Password hashing
    */
   public async create(
     account: CreateAccountDto,
