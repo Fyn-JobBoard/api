@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hash } from 'bcryptjs';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Repository } from 'typeorm';
 import { JWTContent } from './types/jwt-content';
@@ -73,5 +74,25 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  public async loginIn(
+    email: string,
+    password: string,
+  ): Promise<null | {
+    account: Account;
+    jwt: string;
+  }> {
+    const found = await this.accounts.findOneBy({
+      email,
+      password: await hash(password, process.env.BCRYPT_SALT ?? 10),
+    });
+
+    return found
+      ? {
+          account: found,
+          jwt: await this.jwtOf(found),
+        }
+      : null;
   }
 }
