@@ -5,9 +5,14 @@ import {
   UnauthorizedException,
   Version,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto, LoginResponseDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +24,13 @@ export class AuthController {
   })
   @ApiBody({
     type: LoginDto,
+  })
+  @ApiResponse({
+    status: '4XX',
+    description: 'High chances that you provided invalid credentials',
+  })
+  @ApiOkResponse({
+    type: LoginResponseDto,
   })
   @Version('1')
   public async login(

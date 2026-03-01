@@ -1,5 +1,6 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsDefined, IsEmail, IsStrongPassword } from 'class-validator';
+import { Account } from 'src/accounts/entities/account.entity';
 
 @ApiSchema()
 export class LoginDto {
@@ -24,4 +25,19 @@ export class LoginDto {
     format: 'password',
   })
   password: string;
+}
+
+@ApiSchema()
+export class LoginResponseDto {
+  @ApiProperty({
+    type: 'string',
+    format: 'jwt',
+    description: "Your account's jwt",
+  })
+  jwt: string;
+
+  @ApiProperty({
+    description: "Your account's info",
+  })
+  account: Account;
 }
