@@ -50,7 +50,7 @@ export class AuthService {
    * @important This method does not check for the jwt's version
    */
   public async decode(jwt: string): Promise<JWTContent | null> {
-    return this.jwtService.verifyAsync(jwt).catch(() => null);
+    return this.jwtService.verifyAsync<JWTContent>(jwt).catch(() => null);
   }
 
   /**
