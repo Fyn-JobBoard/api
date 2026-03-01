@@ -24,6 +24,8 @@ async function bootstrap() {
         .setTitle('Fyn - API')
         .setDescription('The Fyn application API')
         .setVersion(pkg.version)
+        .addBasicAuth()
+        .addBearerAuth()
         .build(),
     ),
   );
