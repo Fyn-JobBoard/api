@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import assert from 'assert';
-import { Request } from 'express';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Managed } from 'src/accounts/entities/managed.entity';
+import { RequestAccountResolverMiddleware } from 'src/auth/middlewares/request-account-resolver/request-account-resolver.middleware';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import PermissionManager from 'src/common/utils/permissionManager';
 import { IsA } from './decorators/is-a/is-a.decorator';
@@ -87,9 +87,9 @@ export class IsLoggedGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const { account } = context
-      .switchToHttp()
-      .getRequest<Request & { account?: Account }>();
+    const account = RequestAccountResolverMiddleware.getRequestAccount(
+      context.switchToHttp().getRequest(),
+    );
 
     return (
       account instanceof Account &&
