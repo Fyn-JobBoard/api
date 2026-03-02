@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Experience } from 'src/experiences/entities/experience.entity';
 import { Job } from 'src/jobs/entities/job.entity';
 import {
@@ -12,23 +13,43 @@ import { LinkedToAccount } from './account.entity';
 @Entity('companies')
 export class Company extends LinkedToAccount {
   @PrimaryColumn('uuid')
+  @ApiProperty({
+    type: 'string',
+    format: 'uuid',
+  })
   id: string;
 
   @Column('varchar', {
     length: 250,
+  })
+  @ApiProperty({
+    type: 'string',
   })
   name: string;
 
   @Column('text', {
     default: "''",
   })
+  @ApiProperty({
+    type: 'string',
+    format: 'html',
+  })
   bio: string;
 
   @Column('date')
+  @ApiProperty({
+    type: 'string',
+    format: 'date',
+  })
   creation_date: Date;
 
   @Column('varchar', {
     length: 500,
+    nullable: true,
+  })
+  @ApiProperty({
+    type: 'string',
+    format: 'url',
     nullable: true,
   })
   scrapped_from: string;
@@ -37,11 +58,21 @@ export class Company extends LinkedToAccount {
     length: 200,
     nullable: true,
   })
+  @ApiProperty({
+    type: 'string',
+    format: 'url',
+    nullable: true,
+    maxLength: 200,
+  })
   website_url: string;
 
   @OneToMany(() => Job, (job) => job.company, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+  })
+  @ApiProperty({
+    type: () => Job,
+    isArray: true,
   })
   jobs: Relation<Job>[];
 
@@ -49,6 +80,10 @@ export class Company extends LinkedToAccount {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
     nullable: true,
+  })
+  @ApiProperty({
+    type: () => Experience,
+    isArray: true,
   })
   referenced_experiences: Relation<Experience>[];
 }
