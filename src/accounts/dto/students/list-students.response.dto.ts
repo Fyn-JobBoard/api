@@ -1,14 +1,14 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Student } from 'src/accounts/entities/student.entity';
 import { PaginatedDto } from 'src/common/dto/listing/paginated.dto';
-import { Account } from '../entities/account.entity';
 
 @ApiSchema({
   description: "The return of the account's list route",
 })
-export class ListAccountsResponseDto extends PaginatedDto {
+export class ListStudentsResponseDto extends PaginatedDto {
   @ApiProperty({
-    type: Account,
+    type: Student,
     isArray: true,
   })
-  list: Account[];
+  list: Student[];
 }

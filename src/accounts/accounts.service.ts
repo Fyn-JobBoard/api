@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
 import { hash } from 'bcrypt';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { Raw, Repository } from 'typeorm';
+import { type FindOptionsWhere, Raw, Repository } from 'typeorm';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -121,12 +121,18 @@ export class AccountsService {
     await this.accounts.delete(account_ids);
   }
 
-  public async list(per_page: null | number = null, page: number = 1) {
-    if (per_page === null) {
+  public async list(
+    page: number = 1,
+    per_page?: number,
+    where?: FindOptionsWhere<Account>,
+  ) {
+    if (per_page === undefined) {
       return {
         page: 1,
         pages: 1,
-        list: await this.accounts.find(),
+        list: await this.accounts.find({
+          where,
+        }),
       };
     }
     const amount = await this.accounts.count();
@@ -136,6 +142,36 @@ export class AccountsService {
       list: await this.accounts.find({
         skip: per_page * (page - 1),
         take: per_page,
+        where,
+      }),
+    };
+  }
+
+  public async listOf<Model extends AccountModel>(
+    type: Model,
+    page: number = 1,
+    per_page?: number,
+    where?: FindOptionsWhere<InstanceType<Model>>,
+  ) {
+    const repository = this.getRepositoryOf<Model>(type);
+
+    if (per_page === undefined) {
+      return {
+        page: 1,
+        pages: 1,
+        list: await repository.find({
+          where,
+        }),
+      };
+    }
+    const amount = await this.accounts.count();
+    return {
+      page,
+      pages: Math.ceil(amount / per_page),
+      list: await repository.find({
+        skip: (per_page ?? 0) * (page - 1),
+        take: per_page,
+        where,
       }),
     };
   }

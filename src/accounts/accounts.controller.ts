@@ -88,8 +88,8 @@ export class AccountsController {
     per_page: number,
   ) {
     return this.accountsService.list(
-      isNaN(per_page) ? 20 : Math.max(1, per_page),
       isNaN(page) ? undefined : Math.max(1, page),
+      isNaN(per_page) ? 20 : Math.max(1, per_page),
     );
   }
 
