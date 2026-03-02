@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -80,5 +81,25 @@ export class AccountsController {
     }
 
     return await this.accountsService.create(info, defined[0]);
+  }
+
+  @Delete('/:id')
+  @UseGuards(IsLoggedGuard)
+  @IsA([AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perm) =>
+      perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
+  })
+  public async delete(
+    @Param('id')
+    id: string,
+  ) {
+    const account = await this.accountsService.find(id);
+    if (!account) {
+      throw new NotFoundException();
+    }
+
+    await this.accountsService.delete(account);
+    return account;
   }
 }
