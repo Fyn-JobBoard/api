@@ -120,4 +120,23 @@ export class AccountsService {
   public async bulkDelete(account_ids: string[]) {
     await this.accounts.delete(account_ids);
   }
+
+  public async list(per_page: null | number = null, page: number = 1) {
+    if (per_page === null) {
+      return {
+        page: 1,
+        pages: 1,
+        list: await this.accounts.find(),
+      };
+    }
+    const amount = await this.accounts.count();
+    return {
+      page,
+      pages: Math.ceil(amount / per_page),
+      list: await this.accounts.find({
+        skip: per_page * (page - 1),
+        take: per_page,
+      }),
+    };
+  }
 }
