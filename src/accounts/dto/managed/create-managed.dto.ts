@@ -17,5 +17,5 @@ export class CreateManagedDto {
   permissions: string;
 
   @IsUUID()
-  author_id: string;
+  author_id?: string;
 }
