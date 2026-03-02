@@ -1,5 +1,4 @@
 export enum ManagedAccountPermissions {
-  STUDENTS_LIST = 1 << 0,
-  JOBS_LIST = 1 << 1,
-  JOBS_CREATE = 1 << 2,
+  VIEW_ACCOUNTS = 1 << 0,
+  MANAGE_ACCOUNTS = 1 << 1,
 }
