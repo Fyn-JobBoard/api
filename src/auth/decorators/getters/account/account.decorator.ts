@@ -11,7 +11,7 @@ export const Account = createParamDecorator(
       .switchToHttp()
       .getRequest<Request & { account?: AccountEntity }>();
 
-    if (account?.type === type) {
+    if (type === undefined || account?.type === type) {
       return account;
     }
 
