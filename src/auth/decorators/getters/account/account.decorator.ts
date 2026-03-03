@@ -18,3 +18,5 @@ export const Account = createParamDecorator(
     return undefined;
   },
 );
+
+export const AuthAccount = Account;
