@@ -8,7 +8,6 @@ import {
   Param,
   Post,
   Query,
-  Request,
   UnauthorizedException,
   UseGuards,
   Version,
@@ -24,14 +23,14 @@ import {
   ApiResponse,
   refs,
 } from '@nestjs/swagger';
-import type { Request as ReqType } from 'express';
+import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
-import { RequestAccountResolverMiddleware } from 'src/auth/middlewares/request-account-resolver/request-account-resolver.middleware';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { ManagedAccountPermissions } from 'src/common/enums/managedPermissions';
 import { AccountsService } from './accounts.service';
+import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { ListAccountsResponseDto } from './dto/list-accounts.response.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
@@ -95,7 +94,6 @@ export class AccountsController {
 
   @Get('/:id')
   @UseGuards(IsLoggedGuard)
-  @IsA([AccountTypes.Admin, AccountTypes.Managed])
   @IsManagedAnd({
     permissions: (perm) => perm.hasAll(ManagedAccountPermissions.VIEW_ACCOUNTS),
   })
@@ -112,10 +110,22 @@ export class AccountsController {
   public async get(
     @Param('id')
     id: string,
+
+    @AuthAccount()
+    auth: Account,
   ) {
     const account = await this.accountsService.find(id);
     if (!account) {
       throw new NotFoundException();
+    }
+
+    if (
+      !(
+        [AccountTypes.Managed, AccountTypes.Admin].includes(auth.type) ||
+        auth.id === account.id
+      )
+    ) {
+      throw new UnauthorizedException();
     }
 
     return account;
@@ -123,7 +133,6 @@ export class AccountsController {
 
   @Post('/')
   @UseGuards(IsLoggedGuard)
-  @IsA([AccountTypes.Admin, AccountTypes.Managed])
   @IsManagedAnd({
     permissions: (perm) =>
       perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
@@ -143,8 +152,8 @@ export class AccountsController {
     @Body()
     info: CreateAccountDto,
 
-    @Request()
-    req: ReqType,
+    @AuthAccount()
+    auth: Account,
   ) {
     const { admin, company, managed, student } = info;
     const defined = [admin, company, managed, student].filter((dto) => !!dto);
@@ -155,13 +164,17 @@ export class AccountsController {
     }
 
     if (defined[0] instanceof CreateManagedDto) {
-      if (
-        RequestAccountResolverMiddleware.getRequestAccount(req)?.type !==
-          AccountTypes.Admin &&
-        !defined[0].author_id
-      ) {
+      if (auth.type !== AccountTypes.Admin && !defined[0].author_id) {
         throw new UnauthorizedException(
           'System accounts can only be created by administrators.',
+        );
+      }
+    }
+
+    if (defined[0] instanceof CreateAdministratorDto) {
+      if (auth.type !== AccountTypes.Admin) {
+        throw new UnauthorizedException(
+          'Administrator accounts can only be created by other administrators',
         );
       }
     }
@@ -171,7 +184,6 @@ export class AccountsController {
 
   @Delete('/:id')
   @UseGuards(IsLoggedGuard)
-  @IsA([AccountTypes.Admin, AccountTypes.Managed])
   @IsManagedAnd({
     permissions: (perm) =>
       perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
@@ -190,24 +202,30 @@ export class AccountsController {
     @Param('id')
     id: string,
 
-    @Request()
-    req: ReqType,
+    @AuthAccount()
+    auth: Account,
   ) {
     const account = await this.accountsService.find(id);
     if (!account) {
       throw new NotFoundException();
     }
 
-    if (
-      RequestAccountResolverMiddleware.getRequestAccount(req)?.type !==
-      AccountTypes.Admin
-    ) {
+    if (auth.type !== AccountTypes.Admin) {
       const type = await this.accountsService.getModelOf(account);
       if (type instanceof Managed && !type.author) {
         throw new UnauthorizedException(
           'System accounts can only be deleted by administrators.',
         );
       }
+    }
+
+    if (
+      !(
+        [AccountTypes.Managed, AccountTypes.Admin].includes(auth.type) ||
+        auth.id !== account.id
+      )
+    ) {
+      throw new UnauthorizedException();
     }
 
     await this.accountsService.delete(account);
