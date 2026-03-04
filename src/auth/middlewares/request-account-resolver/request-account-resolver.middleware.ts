@@ -65,10 +65,9 @@ export class RequestAccountResolverMiddleware implements NestMiddleware {
         }
 
         const [email, password] = decoded.split(':', 2);
-        account =
-          (await this.authService
-            .loginIn(email, password)
-            .then((result) => result?.account)) ?? null;
+        account = await this.authService
+          .loginIn(email, password)
+          .then((result) => result?.account ?? null);
 
         break;
       }
