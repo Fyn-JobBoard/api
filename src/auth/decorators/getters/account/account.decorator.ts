@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { Account as AccountEntity } from 'src/accounts/entities/account.entity';
+import { RequestAccountResolverMiddleware } from 'src/auth/middlewares/request-account-resolver/request-account-resolver.middleware';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 
 /**
@@ -7,14 +7,16 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
  */
 export const Account = createParamDecorator(
   (type: undefined | AccountTypes, ctx: ExecutionContext) => {
-    const { account } = ctx
-      .switchToHttp()
-      .getRequest<Request & { account?: AccountEntity }>();
+    const account = RequestAccountResolverMiddleware.getRequestAccount(
+      ctx.switchToHttp().getRequest(),
+    );
 
-    if (account?.type === type) {
+    if (account && (type === undefined || account.type === type)) {
       return account;
     }
 
     return undefined;
   },
 );
+
+export const AuthAccount = Account;
