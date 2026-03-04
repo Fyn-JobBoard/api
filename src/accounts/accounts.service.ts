@@ -155,12 +155,7 @@ export class AccountsService {
         return new NotFoundException();
       }
 
-      delete update.admin;
-      delete update.company;
-      delete update.managed;
-      delete update.student;
       Object.assign(found, update);
-
       return this.accounts.save(found);
     }
 
