@@ -4,9 +4,11 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   NotFoundException,
   Param,
   Post,
+  Put,
   Query,
   UnauthorizedException,
   UseGuards,
@@ -18,6 +20,7 @@ import {
   ApiBody,
   ApiExtraModels,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
@@ -34,6 +37,7 @@ import { CreateAdministratorDto } from './dto/administrators/create-administrato
 import { CreateAccountDto } from './dto/create-account.dto';
 import { ListAccountsResponseDto } from './dto/list-accounts.response.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account } from './entities/account.entity';
 import { Administrator } from './entities/admin.entity';
 import { Company } from './entities/company.entity';
@@ -230,5 +234,83 @@ export class AccountsController {
 
     await this.accountsService.delete(account);
     return account;
+  }
+
+  @Put('/:id')
+  @IsManagedAnd({
+    permissions: (perm) =>
+      perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
+  })
+  @ApiOkResponse({
+    type: Account,
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: 'string',
+    format: 'uuid',
+    description: 'The id of the account you want to modify.',
+  })
+  @ApiBody({
+    type: UpdateAccountDto,
+  })
+  @Version('1')
+  public async update(
+    @Body()
+    dto: UpdateAccountDto,
+
+    @AuthAccount()
+    auth: Account,
+
+    @Param('id')
+    id: string,
+  ) {
+    let account = auth;
+    if (id) {
+      const found = await this.accountsService.find(id);
+      if (!found) {
+        throw new NotFoundException();
+      }
+
+      if (
+        !(
+          [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
+          auth.id === found.id
+        )
+      ) {
+        throw new UnauthorizedException();
+      }
+
+      account = found;
+    }
+
+    const update = await this.accountsService.update(account, dto);
+    if (update instanceof HttpException) {
+      throw update;
+    }
+
+    return update as Account;
+  }
+
+  @Put('/')
+  @UseGuards(IsLoggedGuard)
+  @ApiOkResponse({
+    type: Account,
+  })
+  @ApiBody({
+    type: UpdateAccountDto,
+  })
+  @Version('1')
+  @ApiOperation({
+    description: "Update youself's account.",
+  })
+  public async update_me(
+    @Body()
+    dto: UpdateAccountDto,
+
+    @AuthAccount()
+    auth: Account,
+  ) {
+    return this.update(dto, auth, auth.id);
   }
 }
