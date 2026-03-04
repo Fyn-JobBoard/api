@@ -11,7 +11,9 @@ describe('ActivityDomainsController', () => {
       providers: [ActivityDomainsService],
     }).compile();
 
-    controller = module.get<ActivityDomainsController>(ActivityDomainsController);
+    controller = module.get<ActivityDomainsController>(
+      ActivityDomainsController,
+    );
   });
 
   it('should be defined', () => {
