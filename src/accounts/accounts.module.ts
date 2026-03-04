@@ -8,6 +8,7 @@ import { Company } from './entities/company.entity';
 import { Managed } from './entities/managed.entity';
 import { Student } from './entities/student.entity';
 import { StudentsController } from './students.controller';
+import { CompaniesController } from './companies.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { StudentsController } from './students.controller';
       Administrator,
     ]),
   ],
-  controllers: [AccountsController, StudentsController],
+  controllers: [AccountsController, StudentsController, CompaniesController],
   providers: [AccountsService],
   exports: [AccountsService],
 })
