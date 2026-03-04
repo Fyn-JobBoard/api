@@ -1,7 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpException,
   NotFoundException,
+  NotImplementedException,
+  Param,
+  Put,
   Query,
   UnauthorizedException,
   UseGuards,
@@ -10,8 +15,10 @@ import {
 import {
   ApiBasicAuth,
   ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
@@ -23,6 +30,7 @@ import { ManagedAccountPermissions } from 'src/common/enums/managedPermissions';
 import { Raw } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListManagedResponseDto } from './dto/managed/list-managed.response.dto';
+import { UpdateManagedDto } from './dto/managed/update-managed.dto';
 import { Account } from './entities/account.entity';
 import { Managed } from './entities/managed.entity';
 
@@ -34,11 +42,11 @@ import { Managed } from './entities/managed.entity';
   description:
     "You probably made a mistake in the request or you're not logged.",
 })
+@UseGuards(IsLoggedGuard)
 export class ManagedController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Get('/')
-  @UseGuards(IsLoggedGuard)
   @Version('1')
   @IsManagedAnd({
     permissions: (perms) =>
@@ -122,7 +130,6 @@ export class ManagedController {
     format: 'uuid',
   })
   @Version('1')
-  @UseGuards(IsLoggedGuard)
   @IsManagedAnd({
     permissions: (perms) =>
       perms.hasAll(ManagedAccountPermissions.VIEW_MANAGED),
@@ -147,5 +154,73 @@ export class ManagedController {
     }
 
     return found;
+  }
+
+  @Put('/:id')
+  @IsManagedAnd({
+    permissions: (perms) =>
+      perms.hasAll(ManagedAccountPermissions.MANAGE_MANAGED),
+  })
+  @Version('1')
+  @ApiOkResponse({
+    type: Managed,
+  })
+  @ApiBody({
+    type: UpdateManagedDto,
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    format: 'uuid',
+    description: 'The id of the managed account you want to modify',
+  })
+  public async update(
+    @Body()
+    dto: UpdateManagedDto,
+
+    @AuthAccount()
+    auth: Account,
+
+    @Param('id')
+    id: string,
+  ) {
+    const found = await this.accountsService.findModel(id, Managed);
+    if (!found) {
+      throw new UnauthorizedException();
+    }
+
+    if (
+      !(
+        [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
+        found.author?.id !== auth.id
+      )
+    ) {
+      throw new UnauthorizedException();
+    }
+
+    const deniedPermissionSetException = new UnauthorizedException(
+      'Attempted to set permissions higher that authorized.',
+    );
+
+    switch (auth.type) {
+      case AccountTypes.Managed: {
+        const model: Managed = await this.accountsService.getModelOf(auth);
+        throw new NotImplementedException();
+        break;
+      }
+
+      case AccountTypes.Company:
+      case AccountTypes.Student: {
+        throw new NotImplementedException();
+        break;
+      }
+    }
+
+    const updated = this.accountsService.update(found.id, dto);
+    if (updated instanceof HttpException) {
+      throw updated;
+    }
+
+    return updated;
   }
 }
