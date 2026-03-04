@@ -155,6 +155,13 @@ export class AccountsService {
         return new NotFoundException();
       }
 
+      if (update.password) {
+        update.password = await hash(
+          update.password,
+          process.env.BCRYPT_SALT ?? 10,
+        );
+      }
+
       Object.assign(found, update);
       return this.accounts.save(found);
     }
