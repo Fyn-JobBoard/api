@@ -31,7 +31,7 @@ import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { ManagedAccountPermissions } from 'src/common/enums/managedPermissions';
+import { Permissions } from 'src/common/enums/Permissions';
 import { AccountsService } from './accounts.service';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -60,7 +60,7 @@ export class AccountsController {
   @UseGuards(IsLoggedGuard)
   @IsA([AccountTypes.Admin, AccountTypes.Managed])
   @IsManagedAnd({
-    permissions: (perm) => perm.hasAll(ManagedAccountPermissions.VIEW_ACCOUNTS),
+    permissions: (perm) => perm.hasAll(Permissions.VIEW_ACCOUNTS),
   })
   @ApiQuery({
     name: 'page',
@@ -99,7 +99,7 @@ export class AccountsController {
   @Get('/:id')
   @UseGuards(IsLoggedGuard)
   @IsManagedAnd({
-    permissions: (perm) => perm.hasAll(ManagedAccountPermissions.VIEW_ACCOUNTS),
+    permissions: (perm) => perm.hasAll(Permissions.VIEW_ACCOUNTS),
   })
   @Version('1')
   @ApiOkResponse({
@@ -138,8 +138,7 @@ export class AccountsController {
   @Post('/')
   @UseGuards(IsLoggedGuard)
   @IsManagedAnd({
-    permissions: (perm) =>
-      perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
+    permissions: (perm) => perm.hasAll(Permissions.MANAGE_ACCOUNTS),
   })
   @Version('1')
   @ApiOkResponse({
@@ -189,8 +188,7 @@ export class AccountsController {
   @Delete('/:id')
   @UseGuards(IsLoggedGuard)
   @IsManagedAnd({
-    permissions: (perm) =>
-      perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
+    permissions: (perm) => perm.hasAll(Permissions.MANAGE_ACCOUNTS),
   })
   @Version('1')
   @ApiParam({
@@ -238,8 +236,7 @@ export class AccountsController {
 
   @Put('/:id')
   @IsManagedAnd({
-    permissions: (perm) =>
-      perm.hasAll(ManagedAccountPermissions.MANAGE_ACCOUNTS),
+    permissions: (perm) => perm.hasAll(Permissions.MANAGE_ACCOUNTS),
   })
   @ApiOkResponse({
     type: Account,

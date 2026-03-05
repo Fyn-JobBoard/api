@@ -4,7 +4,6 @@ import {
   Get,
   HttpException,
   NotFoundException,
-  NotImplementedException,
   Param,
   Put,
   Query,
@@ -22,11 +21,16 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
+import assert from 'node:assert';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { ManagedAccountPermissions } from 'src/common/enums/managedPermissions';
+import { Permissions } from 'src/common/enums/Permissions';
+import PermissionManager, {
+  COMPANIES_PERMISSIONS,
+  STUDENTS_PERMISSIONS,
+} from 'src/common/utils/permissionManager';
 import { Raw } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListManagedResponseDto } from './dto/managed/list-managed.response.dto';
@@ -49,8 +53,7 @@ export class ManagedController {
   @Get('/')
   @Version('1')
   @IsManagedAnd({
-    permissions: (perms) =>
-      perms.hasAll(ManagedAccountPermissions.VIEW_MANAGED),
+    permissions: (perms) => perms.hasAll(Permissions.VIEW_MANAGED),
   })
   @ApiQuery({
     name: 'page',
@@ -131,8 +134,7 @@ export class ManagedController {
   })
   @Version('1')
   @IsManagedAnd({
-    permissions: (perms) =>
-      perms.hasAll(ManagedAccountPermissions.VIEW_MANAGED),
+    permissions: (perms) => perms.hasAll(Permissions.VIEW_MANAGED),
   })
   @ApiOkResponse({
     type: Managed,
@@ -158,8 +160,7 @@ export class ManagedController {
 
   @Put('/:id')
   @IsManagedAnd({
-    permissions: (perms) =>
-      perms.hasAll(ManagedAccountPermissions.MANAGE_MANAGED),
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_MANAGED),
   })
   @Version('1')
   @ApiOkResponse({
@@ -186,7 +187,7 @@ export class ManagedController {
   ) {
     const found = await this.accountsService.findModel(id, Managed);
     if (!found) {
-      throw new UnauthorizedException();
+      throw new NotFoundException();
     }
 
     if (
@@ -204,14 +205,37 @@ export class ManagedController {
 
     switch (auth.type) {
       case AccountTypes.Managed: {
-        const model: Managed = await this.accountsService.getModelOf(auth);
-        throw new NotImplementedException();
+        const model = await this.accountsService.getModelOf(auth);
+        assert(model instanceof Managed);
+
+        if (!model.checkPermissions().satisfies(dto.permissions ?? 0)) {
+          throw deniedPermissionSetException;
+        }
+
         break;
       }
 
-      case AccountTypes.Company:
+      case AccountTypes.Company: {
+        if (
+          !new PermissionManager(dto.permissions ?? 0).satisfies(
+            COMPANIES_PERMISSIONS,
+          )
+        ) {
+          throw deniedPermissionSetException;
+        }
+
+        break;
+      }
+
       case AccountTypes.Student: {
-        throw new NotImplementedException();
+        if (
+          !new PermissionManager(dto.permissions ?? 0).satisfies(
+            STUDENTS_PERMISSIONS,
+          )
+        ) {
+          throw deniedPermissionSetException;
+        }
+
         break;
       }
     }

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { ManagedAccountPermissions } from 'src/common/enums/managedPermissions';
+import { Permissions } from 'src/common/enums/Permissions';
 import PermissionManager from 'src/common/utils/permissionManager';
 import {
   Column,
@@ -50,7 +50,7 @@ export class Managed extends LinkedToAccount {
   @ApiProperty({
     type: 'integer',
     minimum: 0,
-    maximum: Object.values(ManagedAccountPermissions).reduce(
+    maximum: Object.values(Permissions).reduce(
       (pre, cur) => (typeof cur === 'number' ? pre + cur : pre),
       0,
     ),
