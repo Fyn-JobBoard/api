@@ -26,7 +26,7 @@ import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorat
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { Permissions } from 'src/common/enums/Permissions';
+import { Permissions } from 'src/common/enums/permissions';
 import PermissionManager, {
   COMPANIES_PERMISSIONS,
   STUDENTS_PERMISSIONS,
