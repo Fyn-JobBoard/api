@@ -31,7 +31,7 @@ import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { Permissions } from 'src/common/enums/Permissions';
+import { Permissions } from 'src/common/enums/permissions';
 import { AccountsService } from './accounts.service';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateAccountDto } from './dto/create-account.dto';

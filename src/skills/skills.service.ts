@@ -1,9 +1,8 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from 'src/accounts/entities/student.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 
 @Injectable()
@@ -12,9 +11,32 @@ export class SkillsService {
     @InjectRepository(Skill) private readonly skills: Repository<Skill>,
   ) {}
 
-  public async get(predicate?: UpdateSkillDto) {
-    return this.skills.findBy(predicate ?? []);
+  public async list(
+    page: number = 1,
+    per_page?: number,
+    where?: FindOptionsWhere<Skill>,
+  ) {
+    if (per_page === undefined) {
+      return {
+        page: 1,
+        pages: 1,
+        list: await this.skills.find({
+          where,
+        }),
+      };
+    }
+    const amount = await this.skills.count();
+    return {
+      page,
+      pages: Math.ceil(amount / per_page),
+      list: await this.skills.find({
+        skip: per_page * (page - 1),
+        take: per_page,
+        where,
+      }),
+    };
   }
+
   public async find(id: number) {
     return this.skills.findOneBy({ id });
   }
