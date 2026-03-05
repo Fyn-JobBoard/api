@@ -34,6 +34,7 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/Permissions';
 import { SkillTypes } from 'src/common/enums/skillsTypes';
 import { CreateSkillDto } from './dto/create-skill.dto';
+import { ListSkillsDto } from './dto/list-skills.response.dto';
 import { Skill } from './entities/skill.entity';
 import { SkillsService } from './skills.service';
 
@@ -65,20 +66,45 @@ export class SkillsController {
     type: 'enum',
     enum: SkillTypes,
   })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'integer',
+    minimum: 1,
+  })
+  @ApiQuery({
+    name: 'per_page',
+    required: false,
+    type: 'integer',
+    minimum: 1,
+  })
   @ApiOperation({
     description: 'Find skills based on their name and/or type',
   })
   @ApiOkResponse({
-    type: Skill,
-    isArray: true,
+    type: ListSkillsDto,
   })
   public async get(
+    @Query('page', {
+      transform: (v?: string) => parseInt(v ?? ''),
+    })
+    page: number,
+
+    @Query('per_page', {
+      transform: (v?: string) => parseInt(v ?? ''),
+    })
+    per_page: number,
+
     @Query('name')
     name?: string,
     @Query('type')
     type?: SkillTypes,
   ) {
-    return this.service.get({ name, type });
+    return this.service.list(
+      isNaN(page) ? undefined : page,
+      isNaN(per_page) ? 20 : per_page,
+      { name, type },
+    );
   }
 
   @Get('/:id')
@@ -150,7 +176,7 @@ export class SkillsController {
       throw new UnauthorizedException();
     }
 
-    const found = await this.service.get(skill);
+    const found = (await this.service.list(undefined, undefined, skill)).list;
     if (found.length > 1)
       throw new InternalServerErrorException(
         'The query answered multiple skills.',
