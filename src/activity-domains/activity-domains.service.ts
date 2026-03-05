@@ -1,16 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { In, Repository } from 'typeorm';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+
 @Injectable()
 export class ActivityDomainsService {
   constructor(
     @InjectRepository(ActivityDomain)
     private readonly activityDomainRepository: Repository<ActivityDomain>,
   ) {}
+
   async create(dto: CreateActivityDomainDto): Promise<ActivityDomain> {
     const activityDomain = this.activityDomainRepository.create(dto);
     return this.activityDomainRepository.save(activityDomain);
@@ -36,6 +38,7 @@ export class ActivityDomainsService {
       },
     };
   }
+
   async findOne(id: number): Promise<ActivityDomain> {
     const activityDomain = await this.activityDomainRepository.findOne({
       where: { id },
