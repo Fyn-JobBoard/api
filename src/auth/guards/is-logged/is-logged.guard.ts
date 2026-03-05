@@ -1,6 +1,6 @@
 import {
   CanActivate,
-  ExecutionContext,
+  type ExecutionContext,
   Inject,
   Injectable,
 } from '@nestjs/common';
@@ -36,13 +36,15 @@ export class IsLoggedGuard implements CanActivate {
     private reflector: Reflector,
     @Inject(AccountsService)
     private accountServices: AccountsService,
-
-    @AuthAccount()
-    private auth?: Account,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (!(this.auth instanceof Account)) {
+  async canActivate(
+    context: ExecutionContext,
+
+    @AuthAccount()
+    auth?: Account,
+  ): Promise<boolean> {
+    if (!(auth instanceof Account)) {
       return false;
     }
     const handler = context.getHandler();
@@ -51,15 +53,15 @@ export class IsLoggedGuard implements CanActivate {
       IsA,
       handler,
     );
-    if (accepted && !accepted.includes(this.auth.type)) {
+    if (accepted && !accepted.includes(auth.type)) {
       return false;
     }
 
     const managed_predicates: IsManagedPredicates | undefined =
       this.reflector.get(IsManagedAnd, handler);
 
-    if (managed_predicates && this.auth.type === AccountTypes.Managed) {
-      const managed = await this.accountServices.getModelOf(this.auth);
+    if (managed_predicates && auth.type === AccountTypes.Managed) {
+      const managed = await this.accountServices.getModelOf(auth);
       assert(managed instanceof Managed);
 
       if (
