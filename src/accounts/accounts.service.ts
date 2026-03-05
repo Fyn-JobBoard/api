@@ -1,14 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
 import { hash } from 'bcrypt';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { Raw, Repository } from 'typeorm';
+import { type FindOptionsWhere, Raw, Repository } from 'typeorm';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
+import { UpdateAdministratorDto } from './dto/administrators/update-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
+import { UpdateCompanyDto } from './dto/companies/update-company.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
+import { UpdateManagedDto } from './dto/managed/update-managed.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
+import { UpdateStudentDto } from './dto/students/update-student.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account, AccountModel } from './entities/account.entity';
 import { Administrator } from './entities/admin.entity';
 import { Company } from './entities/company.entity';
@@ -112,6 +121,88 @@ export class AccountsService {
     return this.getModelOf(created);
   }
 
+  public async update(
+    account: Account | string,
+    update:
+      | UpdateAccountDto
+      | UpdateStudentDto
+      | UpdateAdministratorDto
+      | UpdateManagedDto
+      | UpdateCompanyDto,
+  ) {
+    const type =
+      update instanceof UpdateStudentDto
+        ? AccountTypes.Student
+        : update instanceof UpdateAdministratorDto
+          ? AccountTypes.Admin
+          : update instanceof UpdateCompanyDto
+            ? AccountTypes.Company
+            : update instanceof UpdateManagedDto
+              ? AccountTypes.Managed
+              : null;
+
+    const account_id = account instanceof Account ? account.id : account;
+    const wrongUpdateDtoException = new BadRequestException(
+      'Tried to update account without the right update DTO.',
+    );
+    if (type === null) {
+      if (!(update instanceof UpdateAccountDto)) {
+        return wrongUpdateDtoException;
+      }
+
+      const found = await this.find(account_id);
+      if (!found) {
+        return new NotFoundException();
+      }
+
+      if (update.password) {
+        update.password = await hash(
+          update.password,
+          process.env.BCRYPT_SALT ?? 10,
+        );
+      }
+
+      Object.assign(found, update);
+      return this.accounts.save(found);
+    }
+
+    const model = this.getRelatedModelOf(type);
+    const found = await this.findModel(account_id, model);
+    if (!found) {
+      return new NotFoundException();
+    }
+
+    switch (type) {
+      case AccountTypes.Admin: {
+        if (!(update instanceof UpdateAdministratorDto)) {
+          return wrongUpdateDtoException;
+        }
+        break;
+      }
+      case AccountTypes.Company: {
+        if (!(update instanceof UpdateCompanyDto)) {
+          return wrongUpdateDtoException;
+        }
+        break;
+      }
+      case AccountTypes.Managed: {
+        if (!(update instanceof UpdateManagedDto)) {
+          return wrongUpdateDtoException;
+        }
+        break;
+      }
+      case AccountTypes.Student: {
+        if (!(update instanceof UpdateStudentDto)) {
+          return wrongUpdateDtoException;
+        }
+        break;
+      }
+    }
+
+    Object.assign(found, update);
+    return this.getRepositoryOf(model).save(found);
+  }
+
   public async delete(account: Account | string) {
     const account_id = typeof account === 'string' ? account : account.id;
     await this.accounts.delete(account_id);
@@ -119,5 +210,60 @@ export class AccountsService {
 
   public async bulkDelete(account_ids: string[]) {
     await this.accounts.delete(account_ids);
+  }
+
+  public async list(
+    page: number = 1,
+    per_page?: number,
+    where?: FindOptionsWhere<Account>,
+  ) {
+    if (per_page === undefined) {
+      return {
+        page: 1,
+        pages: 1,
+        list: await this.accounts.find({
+          where,
+        }),
+      };
+    }
+    const amount = await this.accounts.count();
+    return {
+      page,
+      pages: Math.ceil(amount / per_page),
+      list: await this.accounts.find({
+        skip: per_page * (page - 1),
+        take: per_page,
+        where,
+      }),
+    };
+  }
+
+  public async listOf<Model extends AccountModel>(
+    type: Model,
+    page: number = 1,
+    per_page?: number,
+    where?: FindOptionsWhere<InstanceType<Model>>,
+  ) {
+    const repository = this.getRepositoryOf<Model>(type);
+
+    if (per_page === undefined) {
+      return {
+        page: 1,
+        pages: 1,
+        list: await repository.find({
+          where,
+        }),
+      };
+    }
+    const amount = await this.accounts.count();
+    return {
+      page,
+      pages: Math.ceil(amount / per_page),
+      list: await repository.find({
+        skip: (per_page ?? 0) * (page - 1),
+        take: per_page,
+        where,
+      }),
+    };
   }
 }

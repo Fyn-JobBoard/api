@@ -1,3 +1,5 @@
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import {
   Column,
@@ -19,27 +21,41 @@ export type AccountModel =
   | typeof Administrator;
 
 @Entity('accounts')
+@ApiSchema()
 export class Account {
   @PrimaryGeneratedColumn('uuid')
+  @ApiProperty({
+    type: 'string',
+    format: 'uuid',
+  })
   id: string;
 
   @Column('varchar', {
     unique: true,
     length: 200,
   })
+  @ApiProperty({
+    type: 'string',
+    format: 'email',
+  })
   email: string;
 
   @Column('varchar', {
     length: 200,
   })
+  @Exclude()
   password: string;
 
   @Column('integer', {
     nullable: true,
   })
+  @Exclude()
   jwt_version: number | null;
 
   @Column('enum', {
+    enum: AccountTypes,
+  })
+  @ApiProperty({
     enum: AccountTypes,
   })
   type: AccountTypes;
