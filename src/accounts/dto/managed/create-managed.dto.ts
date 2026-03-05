@@ -6,7 +6,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { ManagedAccountPermissions } from 'src/common/enums/managedPermissions';
+import { Permissions } from 'src/common/enums/Permissions';
 
 export class CreateManagedDto {
   @IsDefined()
@@ -23,14 +23,14 @@ export class CreateManagedDto {
   @ApiProperty({
     type: 'integer',
     minimum: 0,
-    maximum: Object.values(ManagedAccountPermissions).reduce(
+    maximum: Object.values(Permissions).reduce(
       (pre, cur) => (typeof cur === 'number' ? pre + cur : pre),
       0,
     ),
     description:
       "The managed account's permissions. Note that you must have the permissions you want to give to the managed account.",
   })
-  permissions: string;
+  permissions: number;
 
   @IsUUID()
   @ApiProperty({
