@@ -6,7 +6,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { Permissions } from 'src/common/enums/Permissions';
+import { Permissions } from 'src/common/enums/permissions';
 
 export class CreateManagedDto {
   @IsDefined()

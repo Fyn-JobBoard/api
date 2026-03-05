@@ -1,5 +1,5 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { Permissions } from 'src/common/enums/Permissions';
+import { Permissions } from 'src/common/enums/permissions';
 import PermissionManager from 'src/common/utils/permissionManager';
 import {
   Column,
