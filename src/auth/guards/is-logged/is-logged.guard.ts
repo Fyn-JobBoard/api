@@ -9,7 +9,7 @@ import assert from 'assert';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Managed } from 'src/accounts/entities/managed.entity';
-import { RequestAccountResolverMiddleware } from 'src/auth/middlewares/request-account-resolver/request-account-resolver.middleware';
+import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import PermissionManager from 'src/common/utils/permissionManager';
 import { IsA } from './decorators/is-a/is-a.decorator';
@@ -36,27 +36,30 @@ export class IsLoggedGuard implements CanActivate {
     private reflector: Reflector,
     @Inject(AccountsService)
     private accountServices: AccountsService,
+
+    @AuthAccount()
+    private auth?: Account,
   ) {}
 
-  protected async verifyDecoratorsPredicates(
-    account: Account,
-    context: ExecutionContext,
-  ): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (!(this.auth instanceof Account)) {
+      return false;
+    }
     const handler = context.getHandler();
 
     const accepted: AccountTypes[] | undefined = this.reflector.get(
       IsA,
       handler,
     );
-    if (accepted && !accepted.includes(account.type)) {
+    if (accepted && !accepted.includes(this.auth.type)) {
       return false;
     }
 
     const managed_predicates: IsManagedPredicates | undefined =
       this.reflector.get(IsManagedAnd, handler);
 
-    if (managed_predicates && account.type === AccountTypes.Managed) {
-      const managed = await this.accountServices.getModelOf(account);
+    if (managed_predicates && this.auth.type === AccountTypes.Managed) {
+      const managed = await this.accountServices.getModelOf(this.auth);
       assert(managed instanceof Managed);
 
       if (
@@ -84,16 +87,5 @@ export class IsLoggedGuard implements CanActivate {
     }
 
     return true;
-  }
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const account = RequestAccountResolverMiddleware.getRequestAccount(
-      context.switchToHttp().getRequest(),
-    );
-
-    return (
-      account instanceof Account &&
-      (await this.verifyDecoratorsPredicates(account, context))
-    );
   }
 }
