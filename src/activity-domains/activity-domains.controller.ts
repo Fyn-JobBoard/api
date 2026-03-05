@@ -25,8 +25,15 @@ import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { UseGuards } from '@nestjs/common';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-
+import { ApiBearerAuth, ApiBasicAuth, ApiResponse } from '@nestjs/swagger';
+@UseGuards(IsLoggedGuard)
 @Controller('activity-domains')
+@ApiBearerAuth()
+@ApiBasicAuth()
+@ApiResponse({
+  status: '4XX',
+  description: 'You must be logged to access to this resource.',
+})
 export class ActivityDomainsController {
   constructor(
     private readonly activityDomainsService: ActivityDomainsService,
@@ -34,8 +41,10 @@ export class ActivityDomainsController {
 
   @Post('/')
   @Version('1')
-  @ApiOperation({ summary: 'Create a new activity domain' })
-  @UseGuards(IsLoggedGuard)
+  @ApiOperation({
+    summary: 'Create a new activity domain',
+    description: 'Only admin can create a new activity domain',
+  })
   @IsA([AccountTypes.Admin])
   @ApiBody({ type: CreateActivityDomainDto })
   @ApiOkResponse({
@@ -48,9 +57,10 @@ export class ActivityDomainsController {
 
   @Get('/')
   @Version('1')
-  @ApiOperation({ summary: 'Get all activity domains' })
-  @UseGuards(IsLoggedGuard)
-  @IsA([AccountTypes.Student, AccountTypes.Company, AccountTypes.Admin])
+  @ApiOperation({
+    summary: 'Get all activity domains',
+    description: 'Paginated list of activity domains',
+  })
   @ApiOkResponse({
     description: 'List of activity domains',
     type: ActivityDomain,
@@ -61,9 +71,10 @@ export class ActivityDomainsController {
 
   @Get('/:id')
   @Version('1')
-  @ApiOperation({ summary: 'Get an activity domain by id' })
-  @UseGuards(IsLoggedGuard)
-  @IsA([AccountTypes.Student, AccountTypes.Company, AccountTypes.Admin])
+  @ApiOperation({
+    summary: 'Get an activity domain by id',
+    description: 'Retrieve a specific activity domain by its ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiOkResponse({
     description: 'The activity domain found',
@@ -75,8 +86,10 @@ export class ActivityDomainsController {
 
   @Put('/:id')
   @Version('1')
-  @ApiOperation({ summary: 'Update an activity domain' })
-  @UseGuards(IsLoggedGuard)
+  @ApiOperation({
+    summary: 'Update an activity domain',
+    description: 'Only admin can update an activity domain',
+  })
   @IsA([AccountTypes.Admin])
   @ApiParam({ name: 'id', type: 'number' })
   @ApiBody({ type: UpdateActivityDomainDto })
@@ -93,8 +106,10 @@ export class ActivityDomainsController {
 
   @Delete('/:id')
   @Version('1')
-  @ApiOperation({ summary: 'Delete an activity domain' })
-  @UseGuards(IsLoggedGuard)
+  @ApiOperation({
+    summary: 'Delete an activity domain',
+    description: 'Only admin can delete an activity domain',
+  })
   @IsA([AccountTypes.Admin])
   @ApiParam({ name: 'id', type: 'number' })
   @ApiNoContentResponse({ description: 'The activity domain has been deleted' })
