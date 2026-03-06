@@ -1,10 +1,13 @@
 import { input, select } from '@inquirer/prompts';
+import { OmitType } from '@nestjs/swagger';
+import { validateSync } from 'class-validator';
 import { select as multiselect } from 'inquirer-select-pro';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { CreateManagedDto } from 'src/accounts/dto/managed/create-managed.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import appDatasource from 'src/app.datasource';
+import { LoginDto } from 'src/auth/dto/login.dto';
 import { Permissions } from 'src/common/enums/permissions';
 import { DataSource } from 'typeorm';
 
@@ -26,8 +29,15 @@ export async function create_managed_account(
   accountDto.password ??= await input({
     message: 'Password ?',
     required: true,
-    pattern: /.{5,}/,
-    patternError: 'The password must be at least 5 characters long.',
+    validate(password) {
+      class PasswordSchema extends OmitType(LoginDto, ['email']) {}
+
+      return (
+        validateSync(Object.assign(new PasswordSchema(), { password }))
+          .flatMap((e) => Object.values(e.constraints ?? {}))
+          .join('\n') || true
+      );
+    },
   });
 
   managedDto.name ??= await input({
