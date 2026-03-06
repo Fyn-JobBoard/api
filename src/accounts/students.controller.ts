@@ -124,7 +124,10 @@ export class StudentsController {
     @Body()
     dto: UpdateStudentDto,
   ) {
-    const updated = await this.accountsService.update(id, dto);
+    const updated = await this.accountsService.update(
+      id,
+      Object.assign(new UpdateStudentDto(), dto),
+    );
     if (updated instanceof HttpException) {
       throw updated;
     }

@@ -125,7 +125,10 @@ export class CompaniesController {
     @Body()
     dto: UpdateCompanyDto,
   ) {
-    const updated = await this.accountsService.update(id, dto);
+    const updated = await this.accountsService.update(
+      id,
+      Object.assign(new UpdateCompanyDto(), dto),
+    );
     if (updated instanceof HttpException) {
       throw updated;
     }
