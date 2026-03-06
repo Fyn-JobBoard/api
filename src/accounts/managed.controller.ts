@@ -240,7 +240,10 @@ export class ManagedController {
       }
     }
 
-    const updated = this.accountsService.update(found.id, dto);
+    const updated = await this.accountsService.update(
+      found.id,
+      Object.assign(new UpdateManagedDto(), dto),
+    );
     if (updated instanceof HttpException) {
       throw updated;
     }
