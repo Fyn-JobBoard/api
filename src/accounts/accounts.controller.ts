@@ -298,7 +298,10 @@ export class AccountsController {
       account = found;
     }
 
-    const update = await this.accountsService.update(account, dto);
+    const update = await this.accountsService.update(
+      account,
+      Object.assign(new UpdateAccountDto(), dto),
+    );
     if (update instanceof HttpException) {
       throw update;
     }
