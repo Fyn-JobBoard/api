@@ -5,7 +5,7 @@ import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { CreateManagedDto } from 'src/accounts/dto/managed/create-managed.dto';
 import { Account } from 'src/accounts/entities/account.entity';
 import appDatasource from 'src/app.datasource';
-import { Permissions } from 'src/common/enums/Permissions';
+import { Permissions } from 'src/common/enums/permissions';
 import { DataSource } from 'typeorm';
 
 export async function create_managed_account(
