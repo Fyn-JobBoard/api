@@ -9,7 +9,7 @@ import assert from 'assert';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Managed } from 'src/accounts/entities/managed.entity';
-import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
+import { RequestAccountResolverMiddleware } from 'src/auth/middlewares/request-account-resolver/request-account-resolver.middleware';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import PermissionManager from 'src/common/utils/permissionManager';
 import { IsA } from './decorators/is-a/is-a.decorator';
@@ -38,12 +38,11 @@ export class IsLoggedGuard implements CanActivate {
     private accountServices: AccountsService,
   ) {}
 
-  async canActivate(
-    context: ExecutionContext,
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const auth = RequestAccountResolverMiddleware.getRequestAccount(
+      context.switchToHttp().getRequest(),
+    );
 
-    @AuthAccount()
-    auth?: Account,
-  ): Promise<boolean> {
     if (!(auth instanceof Account)) {
       return false;
     }
