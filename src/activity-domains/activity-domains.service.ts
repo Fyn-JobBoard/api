@@ -1,11 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { In, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import assert from 'node:assert';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
 @Injectable()
 export class ActivityDomainsService {
   constructor(
@@ -18,10 +17,7 @@ export class ActivityDomainsService {
     return this.activityDomainRepository.save(activityDomain);
   }
 
-  async findAllPaginated(query: PaginationQueryDto) {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 20;
-
+  async findAllPaginated(page = 1, limit = 20) {
     const [items, total] = await this.activityDomainRepository.findAndCount({
       order: { name: 'ASC' },
       skip: (page - 1) * limit,
@@ -30,49 +26,35 @@ export class ActivityDomainsService {
 
     return {
       items,
-      meta: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
-      },
+      page,
+      pages: Math.ceil(total / limit),
     };
   }
-
-  async findOne(id: number): Promise<ActivityDomain> {
-    const activityDomain = await this.activityDomainRepository.findOne({
+  async findOne(id: number): Promise<ActivityDomain | null> {
+    return this.activityDomainRepository.findOne({
       where: { id },
     });
-
-    if (!activityDomain) throw new NotFoundException(`ActivityDomain #${id}`);
-
-    return activityDomain;
   }
 
-  async upsertOne(
-    domain: number | CreateActivityDomainDto,
-  ): Promise<ActivityDomain> {
-    if (typeof domain === 'number') {
-      return this.findOne(domain);
-    }
+  async upsertOne(domain: CreateActivityDomainDto): Promise<ActivityDomain> {
+    const name = domain.name.trim();
 
-    await this.activityDomainRepository.upsert(
+    const { identifiers } = await this.activityDomainRepository.upsert(
       {
-        name: domain.name.trim(),
+        name,
         description: domain.description,
       },
       ['name'],
     );
 
     const found = await this.activityDomainRepository.findOne({
-      where: { name: domain.name.trim() },
+      where: identifiers[0],
     });
 
-    if (!found) {
-      throw new NotFoundException(
-        `ActivityDomain with name ${domain.name} could not be upserted`,
-      );
-    }
+    assert(
+      found,
+      `ActivityDomain with name ${domain.name} could not be upserted`,
+    );
 
     return found;
   }
@@ -80,15 +62,20 @@ export class ActivityDomainsService {
   async update(
     id: number,
     updateActivityDomainDto: UpdateActivityDomainDto,
-  ): Promise<ActivityDomain> {
+  ): Promise<ActivityDomain | null> {
     const activityDomain = await this.findOne(id);
+    if (!activityDomain) return null;
     Object.assign(activityDomain, updateActivityDomainDto);
     return this.activityDomainRepository.save(activityDomain);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<ActivityDomain | null> {
     const activityDomain = await this.findOne(id);
+    if (!activityDomain) {
+      return null;
+    }
     await this.activityDomainRepository.remove(activityDomain);
+    return activityDomain;
   }
 
   async findOrCreate(names: string[]): Promise<ActivityDomain[]> {

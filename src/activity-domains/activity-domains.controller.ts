@@ -9,26 +9,18 @@ import {
   Query,
   UseGuards,
   Version,
+  NotFoundException,
 } from '@nestjs/common';
-import {
-  ApiBasicAuth,
-  ApiBearerAuth,
-  ApiBody,
-  ApiNoContentResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-} from '@nestjs/swagger';
-import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
-import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { AccountTypes } from 'src/common/enums/accountTypes';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ActivityDomainsService } from './activity-domains.service';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
-
+import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
+import { UseGuards } from '@nestjs/common';
+import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
+import { AccountTypes } from 'src/common/enums/accountTypes';
+import { ApiBearerAuth, ApiBasicAuth, ApiResponse } from '@nestjs/swagger';
 @UseGuards(IsLoggedGuard)
 @Controller('activity-domains')
 @ApiBearerAuth()
@@ -64,12 +56,36 @@ export class ActivityDomainsController {
     summary: 'Get all activity domains',
     description: 'Paginated list of activity domains',
   })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'page number',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Items per page',
+    minimum: 1,
+  })
   @ApiOkResponse({
     description: 'List of activity domains',
     type: ActivityDomain,
   })
-  findAll(@Query() query: PaginationQueryDto) {
-    return this.activityDomainsService.findAllPaginated(query);
+  findAll(
+    @Query('page', {
+      transform: (v?: string) => parseInt(v ?? ''),
+    })
+    page: number,
+    @Query('limit', {
+      transform: (v?: string) => parseInt(v ?? ''),
+    })
+    limit: number,
+  ) {
+    return this.activityDomainsService.findAllPaginated(
+      isNaN(page) ? undefined : Math.max(1, page),
+      isNaN(limit) ? 20 : Math.max(1, limit),
+    );
   }
 
   @Get('/:id')
@@ -84,7 +100,13 @@ export class ActivityDomainsController {
     type: ActivityDomain,
   })
   async findOne(@Param('id') id: string) {
-    return this.activityDomainsService.findOne(+id);
+    const activityDomain = await this.activityDomainsService.findOne(+id);
+
+    if (!activityDomain) {
+      throw new NotFoundException(`ActivityDomain #${id}`);
+    }
+
+    return activityDomain;
   }
 
   @Put('/:id')
@@ -115,8 +137,16 @@ export class ActivityDomainsController {
   })
   @IsA([AccountTypes.Admin])
   @ApiParam({ name: 'id', type: 'number' })
-  @ApiNoContentResponse({ description: 'The activity domain has been deleted' })
+  @ApiOkResponse({
+    description: 'The deleted activity domain',
+    type: ActivityDomain,
+  })
   async remove(@Param('id') id: string) {
-    return this.activityDomainsService.remove(+id);
+    const activityDomain = await this.activityDomainsService.remove(+id);
+
+    if (!activityDomain) {
+      throw new NotFoundException(`ActivityDomain #${id}`);
+    }
+    return activityDomain;
   }
 }
