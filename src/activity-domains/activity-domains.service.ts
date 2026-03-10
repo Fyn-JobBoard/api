@@ -1,6 +1,5 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import assert from 'node:assert';
 import { Repository } from 'typeorm';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
@@ -35,29 +34,6 @@ export class ActivityDomainsService {
     });
   }
 
-  async upsertOne(domain: CreateActivityDomainDto): Promise<ActivityDomain> {
-    const name = domain.name.trim();
-
-    const { identifiers } = await this.activityDomains.upsert(
-      {
-        name,
-        description: domain.description,
-      },
-      ['name'],
-    );
-
-    const found = await this.activityDomains.findOne({
-      where: identifiers[0],
-    });
-
-    assert(
-      found,
-      `ActivityDomain with name ${domain.name} could not be upserted`,
-    );
-
-    return found;
-  }
-
   async update(
     id: number,
     updateActivityDomainDto: UpdateActivityDomainDto,
@@ -79,14 +55,21 @@ export class ActivityDomainsService {
     return activityDomain;
   }
 
-  async findOrCreate(names: string[]): Promise<ActivityDomain[]> {
+  async upsert(
+    ...domains: CreateActivityDomainDto[]
+  ): Promise<ActivityDomain[]> {
     return this.activityDomains
       .upsert(
-        names.map((name) => ({ name })),
+        domains.map((domain) => ({
+          ...domain,
+          name: domain.name.trim(),
+        })),
         ['name'],
       )
       .then(({ identifiers }) =>
-        identifiers.map((raw) => Object.assign(new ActivityDomain(), raw)),
+        Promise.all(
+          identifiers.map(async (raw) => (await this.findOne(+raw.id))!),
+        ),
       );
   }
 }

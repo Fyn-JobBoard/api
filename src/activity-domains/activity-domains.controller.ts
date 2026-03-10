@@ -55,7 +55,9 @@ export class ActivityDomainsController {
     type: ActivityDomain,
   })
   async create(@Body() createActivityDomainDto: CreateActivityDomainDto) {
-    return this.activityDomainsService.upsertOne(createActivityDomainDto);
+    return this.activityDomainsService
+      .upsert(createActivityDomainDto)
+      .then((r) => r[0]);
   }
 
   @Get('/')
