@@ -1,7 +1,7 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'node:assert';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
@@ -81,23 +81,13 @@ export class ActivityDomainsService {
   }
 
   async findOrCreate(names: string[]): Promise<ActivityDomain[]> {
-    const cleaned = [...new Set(names.map((n) => n.trim()).filter(Boolean))];
-    if (cleaned.length === 0) return [];
-
-    const existing = await this.activityDomainRepository.find({
-      where: { name: In(cleaned) },
-    });
-
-    const existingNames = new Set(existing.map((d) => d.name));
-    const toCreate = cleaned
-      .filter((name) => !existingNames.has(name))
-      .map((name) => this.activityDomainRepository.create({ name }));
-
-    const created =
-      toCreate.length > 0
-        ? await this.activityDomainRepository.save(toCreate)
-        : [];
-
-    return [...existing, ...created];
+    return this.activityDomainRepository
+      .upsert(
+        names.map((name) => ({ name })),
+        ['name'],
+      )
+      .then(({ identifiers }) =>
+        identifiers.map((raw) => Object.assign(new ActivityDomain(), raw)),
+      );
   }
 }
