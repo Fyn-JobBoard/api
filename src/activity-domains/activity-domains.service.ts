@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'node:assert';
+import { In, Repository } from 'typeorm';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
 @Injectable()
 export class ActivityDomainsService {
   constructor(
@@ -62,18 +62,20 @@ export class ActivityDomainsService {
   async update(
     id: number,
     updateActivityDomainDto: UpdateActivityDomainDto,
-  ): Promise<ActivityDomain | null> {
-    const activityDomain = await this.findOne(id);
-    if (!activityDomain) return null;
-    Object.assign(activityDomain, updateActivityDomainDto);
-    return this.activityDomainRepository.save(activityDomain);
+  ): Promise<ActivityDomain | HttpException> {
+    if (!(await this.activityDomainRepository.exists({ where: { id } }))) {
+      return new NotFoundException();
+    }
+    await this.activityDomainRepository.update({ id }, updateActivityDomainDto);
+    return (await this.findOne(id))!;
   }
 
-  async remove(id: number): Promise<ActivityDomain | null> {
+  async remove(id: number): Promise<ActivityDomain | HttpException> {
     const activityDomain = await this.findOne(id);
     if (!activityDomain) {
-      return null;
+      return new NotFoundException();
     }
+
     await this.activityDomainRepository.remove(activityDomain);
     return activityDomain;
   }

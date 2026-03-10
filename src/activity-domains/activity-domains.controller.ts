@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   NotFoundException,
   Param,
   Post,
@@ -110,7 +111,7 @@ export class ActivityDomainsController {
     const activityDomain = await this.activityDomainsService.findOne(+id);
 
     if (!activityDomain) {
-      throw new NotFoundException(`ActivityDomain #${id}`);
+      throw new NotFoundException();
     }
 
     return activityDomain;
@@ -138,8 +139,8 @@ export class ActivityDomainsController {
       updateActivityDomainDto,
     );
 
-    if (!activityDomain) {
-      throw new NotFoundException(`ActivityDomain #${id}`);
+    if (activityDomain instanceof HttpException) {
+      throw activityDomain;
     }
 
     return activityDomain;
@@ -160,9 +161,10 @@ export class ActivityDomainsController {
   async remove(@Param('id') id: string) {
     const activityDomain = await this.activityDomainsService.remove(+id);
 
-    if (!activityDomain) {
-      throw new NotFoundException(`ActivityDomain #${id}`);
+    if (activityDomain instanceof HttpException) {
+      throw activityDomain;
     }
+
     return activityDomain;
   }
 }
