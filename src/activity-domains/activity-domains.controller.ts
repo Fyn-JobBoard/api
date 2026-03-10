@@ -3,29 +3,31 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
   Query,
   UseGuards,
   Version,
-  NotFoundException,
 } from '@nestjs/common';
 import {
+  ApiBasicAuth,
+  ApiBearerAuth,
   ApiBody,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
-  ApiOkResponse,
+  ApiResponse,
 } from '@nestjs/swagger';
+import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
+import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
+import { AccountTypes } from 'src/common/enums/accountTypes';
 import { ActivityDomainsService } from './activity-domains.service';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
-import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
-import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
-import { AccountTypes } from 'src/common/enums/accountTypes';
-import { ApiBearerAuth, ApiBasicAuth, ApiResponse } from '@nestjs/swagger';
 @UseGuards(IsLoggedGuard)
 @Controller('activity-domains')
 @ApiBearerAuth()
@@ -52,7 +54,7 @@ export class ActivityDomainsController {
     type: ActivityDomain,
   })
   async create(@Body() createActivityDomainDto: CreateActivityDomainDto) {
-    return this.activityDomainsService.create(createActivityDomainDto);
+    return this.activityDomainsService.upsertOne(createActivityDomainDto);
   }
 
   @Get('/')
