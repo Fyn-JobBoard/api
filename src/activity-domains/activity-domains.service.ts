@@ -19,7 +19,6 @@ export class ActivityDomainsService {
 
   async findAllPaginated(page = 1, limit = 20) {
     const [items, total] = await this.activityDomains.findAndCount({
-      order: { name: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,
     });
