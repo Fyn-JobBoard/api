@@ -34,9 +34,11 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
 import { AccountsService } from './accounts.service';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
+import { CreateCompanyDto } from './dto/companies/create-company.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { ListAccountsResponseDto } from './dto/list-accounts.response.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
+import { CreateStudentDto } from './dto/students/create-student.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account } from './entities/account.entity';
 import { Administrator } from './entities/admin.entity';
@@ -158,8 +160,23 @@ export class AccountsController {
     @AuthAccount()
     auth: Account,
   ) {
-    const { admin, company, managed, student } = info;
-    const defined = [admin, company, managed, student].filter((dto) => !!dto);
+    const relatedDtos = {
+      admin: CreateAdministratorDto,
+      company: CreateCompanyDto,
+      managed: CreateManagedDto,
+      student: CreateStudentDto,
+    };
+
+    const defined = Object.keys(relatedDtos)
+      .map((key: keyof typeof relatedDtos) => {
+        if (!info[key]) {
+          return undefined;
+        }
+
+        return Object.assign(new relatedDtos[key](), info[key]);
+      })
+      .filter((dto) => !!dto);
+
     if (defined.length !== 1) {
       throw new BadRequestException(
         'The account must define one of the admin, company, student or managed information.',
@@ -281,7 +298,10 @@ export class AccountsController {
       account = found;
     }
 
-    const update = await this.accountsService.update(account, dto);
+    const update = await this.accountsService.update(
+      account,
+      Object.assign(new UpdateAccountDto(), dto),
+    );
     if (update instanceof HttpException) {
       throw update;
     }
