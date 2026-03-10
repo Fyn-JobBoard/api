@@ -9,16 +9,16 @@ import { ActivityDomain } from './entities/activity-domain.entity';
 export class ActivityDomainsService {
   constructor(
     @InjectRepository(ActivityDomain)
-    private readonly activityDomainRepository: Repository<ActivityDomain>,
+    private readonly activityDomains: Repository<ActivityDomain>,
   ) {}
 
   async create(dto: CreateActivityDomainDto): Promise<ActivityDomain> {
-    const activityDomain = this.activityDomainRepository.create(dto);
-    return this.activityDomainRepository.save(activityDomain);
+    const activityDomain = this.activityDomains.create(dto);
+    return this.activityDomains.save(activityDomain);
   }
 
   async findAllPaginated(page = 1, limit = 20) {
-    const [items, total] = await this.activityDomainRepository.findAndCount({
+    const [items, total] = await this.activityDomains.findAndCount({
       order: { name: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -31,7 +31,7 @@ export class ActivityDomainsService {
     };
   }
   async findOne(id: number): Promise<ActivityDomain | null> {
-    return this.activityDomainRepository.findOne({
+    return this.activityDomains.findOne({
       where: { id },
     });
   }
@@ -39,7 +39,7 @@ export class ActivityDomainsService {
   async upsertOne(domain: CreateActivityDomainDto): Promise<ActivityDomain> {
     const name = domain.name.trim();
 
-    const { identifiers } = await this.activityDomainRepository.upsert(
+    const { identifiers } = await this.activityDomains.upsert(
       {
         name,
         description: domain.description,
@@ -47,7 +47,7 @@ export class ActivityDomainsService {
       ['name'],
     );
 
-    const found = await this.activityDomainRepository.findOne({
+    const found = await this.activityDomains.findOne({
       where: identifiers[0],
     });
 
@@ -63,10 +63,10 @@ export class ActivityDomainsService {
     id: number,
     updateActivityDomainDto: UpdateActivityDomainDto,
   ): Promise<ActivityDomain | HttpException> {
-    if (!(await this.activityDomainRepository.exists({ where: { id } }))) {
+    if (!(await this.activityDomains.exists({ where: { id } }))) {
       return new NotFoundException();
     }
-    await this.activityDomainRepository.update({ id }, updateActivityDomainDto);
+    await this.activityDomains.update({ id }, updateActivityDomainDto);
     return (await this.findOne(id))!;
   }
 
@@ -76,12 +76,12 @@ export class ActivityDomainsService {
       return new NotFoundException();
     }
 
-    await this.activityDomainRepository.remove(activityDomain);
+    await this.activityDomains.remove(activityDomain);
     return activityDomain;
   }
 
   async findOrCreate(names: string[]): Promise<ActivityDomain[]> {
-    return this.activityDomainRepository
+    return this.activityDomains
       .upsert(
         names.map((name) => ({ name })),
         ['name'],
