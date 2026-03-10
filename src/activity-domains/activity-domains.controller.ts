@@ -11,13 +11,18 @@ import {
   Version,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { ActivityDomainsService } from './activity-domains.service';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
-import { UseGuards } from '@nestjs/common';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { ApiBearerAuth, ApiBasicAuth, ApiResponse } from '@nestjs/swagger';
@@ -126,7 +131,16 @@ export class ActivityDomainsController {
     @Param('id') id: string,
     @Body() updateActivityDomainDto: UpdateActivityDomainDto,
   ) {
-    return this.activityDomainsService.update(+id, updateActivityDomainDto);
+    const activityDomain = await this.activityDomainsService.update(
+      +id,
+      updateActivityDomainDto,
+    );
+
+    if (!activityDomain) {
+      throw new NotFoundException(`ActivityDomain #${id}`);
+    }
+
+    return activityDomain;
   }
 
   @Delete('/:id')

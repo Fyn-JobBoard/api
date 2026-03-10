@@ -11,7 +11,7 @@ export const Account = createParamDecorator(
       ctx.switchToHttp().getRequest(),
     );
 
-    if (type === undefined || account?.type === type) {
+    if (account && (type === undefined || account.type === type)) {
       return account;
     }
 
