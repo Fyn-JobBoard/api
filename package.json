@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "orm": "bunx --bun typeorm-ts-node-commonjs",
     "orm:connected": "bun run orm -d ./src/app.datasource.ts",
-    "seed": "bun db/seed.ts"
+    "seed": "bun db/seed.ts",
+    "console": "bun console/handler.ts $*"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -42,6 +43,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@inquirer/input": "^5.0.8",
+    "@inquirer/prompts": "^8.3.0",
+    "@inquirer/select": "^5.1.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -54,6 +58,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
+    "inquirer-select-pro": "^1.0.0-alpha.9",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
