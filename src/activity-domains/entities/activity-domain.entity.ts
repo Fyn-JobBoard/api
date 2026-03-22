@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { Job } from 'src/jobs/entities/job.entity';
 import {
   Column,
@@ -10,11 +12,18 @@ import {
 @Entity('activity_domains')
 export class ActivityDomain {
   @PrimaryGeneratedColumn('increment')
+  @ApiProperty({
+    type: 'integer',
+  })
   id: number;
 
   @Column('varchar', {
     unique: true,
     length: 60,
+  })
+  @ApiProperty({
+    type: 'string',
+    maxLength: 60,
   })
   name: string;
 
@@ -22,11 +31,17 @@ export class ActivityDomain {
     nullable: true,
     length: 500,
   })
+  @ApiProperty({
+    type: 'string',
+    required: false,
+    maxLength: 500,
+  })
   description?: string;
 
   @OneToMany(() => Job, (job) => job.activity_domain, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
+  @Exclude()
   jobs: Relation<Job>[];
 }
