@@ -47,5 +47,6 @@ export class CreateFormationDto {
   @IsInt()
   @Type(() => ActivityDomain)
   @Exists(() => ActivityDomain)
+  @ApiProperty()
   activity_domain_id?: number;
 }
