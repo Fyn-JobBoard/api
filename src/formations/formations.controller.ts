@@ -20,6 +20,7 @@ import { AccountsService } from 'src/accounts/accounts.service';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Student } from 'src/accounts/entities/student.entity';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
+import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
@@ -58,9 +59,11 @@ export class FormationsController {
   @ApiOkResponse({
     type: Formation,
   })
-  async create(
-    @Body() formationDto: CreateFormationDto,
-    @Param('student_id') student_id: string,
+  async createFor(
+    @Body()
+    formationDto: CreateFormationDto,
+    @Param('student_id')
+    student_id: string,
     @AuthAccount()
     auth: Account,
   ) {
@@ -77,5 +80,25 @@ export class FormationsController {
     }
 
     return this.formations.create(formationDto, student);
+  }
+
+  @Post('/')
+  @UseGuards(IsLoggedGuard)
+  @IsA([AccountTypes.Student])
+  @Version('1')
+  @ApiOperation({
+    description:
+      'Create a new formation and asign it to yourself (only available for students)',
+  })
+  @ApiOkResponse({
+    type: Formation,
+  })
+  async create(
+    @Body()
+    formationDto: CreateFormationDto,
+    @AuthAccount()
+    auth: Account,
+  ) {
+    return this.createFor(formationDto, auth.id, auth);
   }
 }
