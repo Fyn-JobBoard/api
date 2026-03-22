@@ -8,7 +8,14 @@ import {
   UseGuards,
   Version,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Student } from 'src/accounts/entities/student.entity';
@@ -18,9 +25,16 @@ import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
 import { CreateFormationDto } from './dto/create-formation.dto';
+import { Formation } from './entities/formation.entity';
 import { FormationsService } from './formations.service';
 
 @Controller('formations')
+@ApiBearerAuth()
+@ApiBasicAuth()
+@ApiResponse({
+  status: '4XX',
+  description: 'You must be logged to access this resources.',
+})
 export class FormationsController {
   constructor(
     private readonly formations: FormationsService,
@@ -40,6 +54,9 @@ export class FormationsController {
   })
   @ApiOperation({
     description: 'Create a new formation',
+  })
+  @ApiOkResponse({
+    type: Formation,
   })
   async create(
     @Body() formationDto: CreateFormationDto,
