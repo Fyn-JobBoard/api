@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsDefined, IsString, IsUrl, MaxLength } from 'class-validator';
+import {
+  IsDateString,
+  IsDefined,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateCompanyDto {
   @IsDefined()
@@ -7,9 +14,11 @@ export class CreateCompanyDto {
   @ApiProperty({
     type: 'string',
     required: true,
+    maxLength: 250,
   })
   name: string;
 
+  @IsOptional()
   @IsString()
   @ApiProperty({
     type: 'string',
@@ -19,13 +28,14 @@ export class CreateCompanyDto {
   bio?: string;
 
   @IsDefined()
-  @IsDate()
+  @IsDateString()
   @ApiProperty({
     type: 'string',
     format: 'date',
   })
   creation_date: Date;
 
+  @IsOptional()
   @IsString()
   @IsUrl()
   @ApiProperty({
@@ -35,6 +45,7 @@ export class CreateCompanyDto {
   })
   scrapped_from?: string;
 
+  @IsOptional()
   @IsString()
   @IsUrl()
   @ApiProperty({

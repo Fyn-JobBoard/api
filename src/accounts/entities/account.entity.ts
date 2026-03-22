@@ -37,6 +37,7 @@ export class Account {
   @ApiProperty({
     type: 'string',
     format: 'email',
+    maxLength: 200,
   })
   email: string;
 

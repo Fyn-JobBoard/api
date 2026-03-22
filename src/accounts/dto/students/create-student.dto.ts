@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
-  IsDate,
+  IsDateString,
   IsDefined,
+  IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
@@ -13,6 +14,7 @@ export class CreateStudentDto {
   @ApiProperty({
     type: 'string',
     required: true,
+    maxLength: 200,
   })
   first_name: string;
 
@@ -21,18 +23,20 @@ export class CreateStudentDto {
   @ApiProperty({
     type: 'string',
     required: true,
+    maxLength: 200,
   })
   last_name: string;
 
   @IsDefined()
-  @IsDate()
+  @IsDateString()
   @ApiProperty({
     type: 'string',
     format: 'date',
     required: true,
   })
-  birthdate: Date;
+  birthdate: string;
 
+  @IsOptional()
   @IsString()
   @ApiProperty({
     type: 'string',
@@ -41,11 +45,13 @@ export class CreateStudentDto {
   })
   bio?: string;
 
+  @IsOptional()
   @IsArray()
   @ApiProperty({
     type: 'string',
     format: 'url',
     isArray: true,
+    required: false,
   })
   links?: string[];
 }

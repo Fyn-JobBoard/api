@@ -27,12 +27,14 @@ export class Student extends LinkedToAccount {
   @Column('varchar', { length: 200 })
   @ApiProperty({
     type: 'string',
+    maxLength: 200,
   })
   first_name: string;
 
   @Column('varchar', { length: 200 })
   @ApiProperty({
     type: 'string',
+    maxLength: 200,
   })
   last_name: string;
 

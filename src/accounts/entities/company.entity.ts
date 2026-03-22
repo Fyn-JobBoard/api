@@ -24,6 +24,7 @@ export class Company extends LinkedToAccount {
   })
   @ApiProperty({
     type: 'string',
+    maxLength: 250,
   })
   name: string;
 
@@ -50,9 +51,9 @@ export class Company extends LinkedToAccount {
   @ApiProperty({
     type: 'string',
     format: 'url',
-    nullable: true,
+    required: false,
   })
-  scrapped_from: string;
+  scrapped_from?: string;
 
   @Column('varchar', {
     length: 200,
