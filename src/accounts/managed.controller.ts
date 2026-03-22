@@ -38,7 +38,7 @@ import { UpdateManagedDto } from './dto/managed/update-managed.dto';
 import { Account } from './entities/account.entity';
 import { Managed } from './entities/managed.entity';
 
-@Controller('managed')
+@Controller('accounts/managed')
 @ApiBearerAuth()
 @ApiBasicAuth()
 @ApiResponse({
