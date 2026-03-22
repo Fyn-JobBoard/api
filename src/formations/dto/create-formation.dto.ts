@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
-  IsDate,
   IsDateString,
   IsDefined,
   IsInt,
@@ -13,7 +11,9 @@ import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.en
 import { Exists } from 'src/common/validators/exists/exists.decorator';
 
 export class CreateFormationDto {
-  @ApiProperty()
+  @ApiProperty({
+    maxLength: 100,
+  })
   @IsDefined()
   @MaxLength(100)
   title: string;
@@ -24,30 +24,44 @@ export class CreateFormationDto {
   @ApiProperty({
     description:
       'A website that contains more informations about the formation',
+    required: false,
+    format: 'url',
   })
   info_url?: string;
 
   @IsOptional()
   @MaxLength(1024)
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+  })
   description?: string;
 
   @IsDateString()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    format: 'date',
+  })
   obtention_date?: string;
 
   @ApiProperty({
-    description: 'How long the formation is',
+    description: 'How long the formation is/has been',
+    type: 'integer',
+    minimum: 0,
   })
   @IsDefined()
   @IsInt()
-  duration?: number;
+  duration: number;
 
   @IsOptional()
   @IsInt()
   @Exists(ActivityDomain)
-  @Type(() => ActivityDomain)
-  @ApiProperty()
+  @ApiProperty({
+    description:
+      "An optionnal activity domain's id this formation is associed to",
+    required: false,
+    type: 'integer',
+    minimum: 0,
+  })
   activity_domain_id?: number;
 }
