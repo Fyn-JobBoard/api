@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDate,
+  IsDateString,
   IsDefined,
   IsInt,
   IsOptional,
@@ -31,10 +32,10 @@ export class CreateFormationDto {
   @ApiProperty()
   description?: string;
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   @ApiProperty()
-  obtention_date?: Date;
+  obtention_date?: string;
 
   @ApiProperty({
     description: 'How long the formation is',
