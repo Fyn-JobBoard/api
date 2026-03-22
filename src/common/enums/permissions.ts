@@ -6,4 +6,7 @@ export enum Permissions {
 
   VIEW_MANAGED = 1 << 3,
   MANAGE_MANAGED = 1 << 4,
+
+  VIEW_FORMATIONS = 1 << 5,
+  MANAGE_FORMATIONS = 1 << 6,
 }
