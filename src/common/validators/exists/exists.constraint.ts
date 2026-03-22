@@ -57,9 +57,9 @@ export class ExistsConstraint<
             : null;
 
     if (name) {
-      return `This ${name} does not exist.`;
+      return `${validationArguments?.property} references an invalid ${name}`;
     } else {
-      return 'Not found';
+      return `${validationArguments?.property}'s related entity has not been found`;
     }
   }
 }
