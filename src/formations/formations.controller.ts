@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -66,7 +67,7 @@ export class FormationsController {
     return this.createFor(formationDto, auth.id, auth);
   }
 
-  @Post('/:student_id')
+  @Post('/of/:student_id')
   @UseGuards(IsLoggedGuard)
   @Version('1')
   @IsManagedAnd({
@@ -146,7 +147,7 @@ export class FormationsController {
     return this.listFor(auth.id, page, per_page);
   }
 
-  @Get('/:student_id')
+  @Get('/of/:student_id')
   @UseGuards(IsLoggedGuard)
   @Version('1')
   @IsManagedAnd({
@@ -201,5 +202,39 @@ export class FormationsController {
         student,
       },
     );
+  }
+
+  @Get('/:formation_id')
+  @ApiOperation({
+    description: 'Get a single formation',
+  })
+  @ApiOkResponse({
+    type: Formation,
+  })
+  @ApiParam({
+    name: 'formation_id',
+    description: 'The formation id you want to retreive',
+    type: 'integer',
+  })
+  @Version('1')
+  @UseGuards(IsLoggedGuard)
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.VIEW_FORMATIONS),
+  })
+  public async single(
+    @Param('formation_id')
+    formation_id: string,
+  ) {
+    const id = parseInt(formation_id);
+    if (isNaN(id)) {
+      throw new BadRequestException('formation_id must be an integer');
+    }
+
+    const found = await this.formations.findOne(id);
+    if (!found) {
+      throw new NotFoundException();
+    }
+
+    return found;
   }
 }
