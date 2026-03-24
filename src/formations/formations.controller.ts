@@ -3,9 +3,11 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   NotFoundException,
   Param,
   Post,
+  Put,
   Query,
   UnauthorizedException,
   UseGuards,
@@ -31,6 +33,7 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
 import { CreateFormationDto } from './dto/create-formation.dto';
 import { ListFormationsResponseDto } from './dto/list-formation-response.dto';
+import { UpdateFormationDto } from './dto/update-formation.dto';
 import { Formation } from './entities/formation.entity';
 import { FormationsService } from './formations.service';
 
@@ -222,19 +225,66 @@ export class FormationsController {
     permissions: (perms) => perms.hasAll(Permissions.VIEW_FORMATIONS),
   })
   public async single(
-    @Param('formation_id')
-    formation_id: string,
+    @Param('formation_id', {
+      transform: (v?: string) => parseInt(v ?? ''),
+    })
+    formation_id: number,
   ) {
-    const id = parseInt(formation_id);
-    if (isNaN(id)) {
+    if (isNaN(formation_id)) {
       throw new BadRequestException('formation_id must be an integer');
     }
 
-    const found = await this.formations.findOne(id);
+    const found = await this.formations.findOne(formation_id);
     if (!found) {
       throw new NotFoundException();
     }
 
     return found;
+  }
+
+  @Put('/:formation_id')
+  @UseGuards(IsLoggedGuard)
+  @Version('1')
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_FORMATIONS),
+  })
+  @ApiOperation({
+    description: 'Modify an existing formation',
+  })
+  @ApiOkResponse({
+    type: Formation,
+  })
+  async update(
+    @Body()
+    formationDto: UpdateFormationDto,
+    @AuthAccount()
+    auth: Account,
+    @Param('formation_id', {
+      transform: (v?: string) => parseInt(v ?? ''),
+    })
+    formation_id: number,
+  ) {
+    if (isNaN(formation_id)) {
+      throw new BadRequestException('formation_id must be a positive integer.');
+    }
+
+    const formation = await this.formations.findOne(formation_id);
+    if (!formation) {
+      throw new NotFoundException();
+    }
+
+    if (
+      ![AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) &&
+      auth.id !== formation.student.id
+    ) {
+      throw new UnauthorizedException();
+    }
+
+    const result = await this.formations.update(formation.id, formationDto);
+    if (result instanceof HttpException) {
+      throw result;
+    }
+
+    return result;
   }
 }
