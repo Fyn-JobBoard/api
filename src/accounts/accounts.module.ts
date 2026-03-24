@@ -22,10 +22,13 @@ import { StudentsController } from './students.controller';
     ]),
   ],
   controllers: [
-    AccountsController,
     StudentsController,
     CompaniesController,
     ManagedController,
+
+    //! Note: keep the accounts controller at the end of the controllers array.
+    //? To prevent /accounts/students to ping to /accounts/:id (register the /accounts/<type> routes first)
+    AccountsController,
   ],
   providers: [AccountsService],
   exports: [AccountsService],

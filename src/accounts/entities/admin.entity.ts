@@ -17,6 +17,7 @@ export class Administrator extends LinkedToAccount {
   })
   @ApiProperty({
     type: 'string',
+    maxLength: 200,
   })
   first_name: string;
 
@@ -25,6 +26,7 @@ export class Administrator extends LinkedToAccount {
   })
   @ApiProperty({
     type: 'string',
+    maxLength: 200,
   })
   last_name: string;
 }

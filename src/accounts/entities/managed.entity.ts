@@ -37,7 +37,7 @@ export class Managed extends LinkedToAccount {
   })
   @ApiProperty({
     type: () => Account,
-    nullable: true,
+    required: false,
     description:
       'The author of the account. If this value is `null`, then this is a system managed account.',
   })
@@ -50,10 +50,9 @@ export class Managed extends LinkedToAccount {
   @ApiProperty({
     type: 'integer',
     minimum: 0,
-    maximum: Object.values(Permissions).reduce(
-      (pre, cur) => (typeof cur === 'number' ? pre + cur : pre),
-      0,
-    ),
+    maximum: new PermissionManager().grant(
+      ...Object.values(Permissions).filter((p) => typeof p === 'number'),
+    ).result,
   })
   permissions: number;
 
