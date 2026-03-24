@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 import pkg from '../package.json';
 import { AppModule } from './app.module';
 
@@ -16,6 +17,8 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   SwaggerModule.setup('/docs', app, () =>
     SwaggerModule.createDocument(

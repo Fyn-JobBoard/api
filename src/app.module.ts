@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
 import { RequestAccountResolverMiddleware } from './auth/middlewares/request-account-resolver/request-account-resolver.middleware';
+import { ExistsConstraint } from './common/validators/exists/exists.constraint';
 import { ExperiencesModule } from './experiences/experiences.module';
 import { FormationsModule } from './formations/formations.module';
 import { JobsModule } from './jobs/jobs.module';
@@ -30,7 +31,7 @@ import { TagsModule } from './tags/tags.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ExistsConstraint],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
