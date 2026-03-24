@@ -46,6 +46,26 @@ export class FormationsController {
     private readonly accounts: AccountsService,
   ) {}
 
+  @Post('/')
+  @UseGuards(IsLoggedGuard)
+  @IsA([AccountTypes.Student])
+  @Version('1')
+  @ApiOperation({
+    description:
+      'Create a new formation and asign it to yourself (only available for students)',
+  })
+  @ApiOkResponse({
+    type: Formation,
+  })
+  async create(
+    @Body()
+    formationDto: CreateFormationDto,
+    @AuthAccount()
+    auth: Account,
+  ) {
+    return this.createFor(formationDto, auth.id, auth);
+  }
+
   @Post('/:student_id')
   @UseGuards(IsLoggedGuard)
   @Version('1')
