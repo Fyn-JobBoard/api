@@ -22,6 +22,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import assert from 'node:assert';
+import { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
@@ -35,7 +36,6 @@ import { Raw } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListManagedResponseDto } from './dto/managed/list-managed.response.dto';
 import { UpdateManagedDto } from './dto/managed/update-managed.dto';
-import { Account } from './entities/account.entity';
 import { Managed } from './entities/managed.entity';
 
 @Controller('accounts/managed')
@@ -86,7 +86,7 @@ export class ManagedController {
   })
   public async list(
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
 
     @Query('page', {
       transform: (v?: string) => parseInt(v ?? ''),
@@ -141,7 +141,7 @@ export class ManagedController {
   })
   public async get(
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
 
     @Query('id')
     id: string,
@@ -180,7 +180,7 @@ export class ManagedController {
     dto: UpdateManagedDto,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
 
     @Param('id')
     id: string,
@@ -205,7 +205,9 @@ export class ManagedController {
 
     switch (auth.type) {
       case AccountTypes.Managed: {
-        const model = await this.accountsService.getModelOf(auth);
+        const model = await this.accountsService.getModelOf(
+          await auth.account(),
+        );
         assert(model instanceof Managed);
 
         if (!model.checkPermissions().satisfies(dto.permissions ?? 0)) {

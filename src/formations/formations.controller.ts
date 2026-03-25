@@ -23,8 +23,8 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { AccountsService } from 'src/accounts/accounts.service';
-import { Account } from 'src/accounts/entities/account.entity';
 import { Student } from 'src/accounts/entities/student.entity';
+import { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
@@ -65,7 +65,7 @@ export class FormationsController {
     @Body()
     formationDto: CreateFormationDto,
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     return this.createFor(formationDto, auth.id, auth);
   }
@@ -93,7 +93,7 @@ export class FormationsController {
     @Param('student_id')
     student_id: string,
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     const student = await this.accounts.findModel(student_id, Student);
     if (!student) {
@@ -136,7 +136,7 @@ export class FormationsController {
   })
   async list(
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
 
     @Query('page', {
       transform: (v?: string) => parseInt(v ?? ''),
@@ -258,7 +258,7 @@ export class FormationsController {
     @Body()
     formationDto: UpdateFormationDto,
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
     @Param('formation_id', {
       transform: (v?: string) => parseInt(v ?? ''),
     })

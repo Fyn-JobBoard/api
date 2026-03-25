@@ -26,6 +26,7 @@ import {
   ApiResponse,
   refs,
 } from '@nestjs/swagger';
+import { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
@@ -118,7 +119,7 @@ export class AccountsController {
     id: string,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     const account = await this.accountsService.find(id);
     if (!account) {
@@ -158,7 +159,7 @@ export class AccountsController {
     info: CreateAccountDto,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     const relatedDtos = {
       admin: CreateAdministratorDto,
@@ -222,7 +223,7 @@ export class AccountsController {
     id: string,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     const account = await this.accountsService.find(id);
     if (!account) {
@@ -274,12 +275,12 @@ export class AccountsController {
     dto: UpdateAccountDto,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
 
     @Param('id')
     id: string,
   ) {
-    let account = auth;
+    let account: Account | null = null;
     if (id) {
       const found = await this.accountsService.find(id);
       if (!found) {
@@ -297,6 +298,7 @@ export class AccountsController {
 
       account = found;
     }
+    account ??= await auth.account();
 
     const update = await this.accountsService.update(
       account,
@@ -326,7 +328,7 @@ export class AccountsController {
     dto: UpdateAccountDto,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     return this.update(dto, auth, auth.id);
   }
