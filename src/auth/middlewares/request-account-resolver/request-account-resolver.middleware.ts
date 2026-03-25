@@ -8,6 +8,7 @@ import {
 import type { NextFunction, Request, Response } from 'express';
 import { Account } from 'src/accounts/entities/account.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { Auth } from 'src/auth/class/auth.class';
 
 @Injectable()
 export class RequestAccountResolverMiddleware implements NestMiddleware {
@@ -19,15 +20,22 @@ export class RequestAccountResolverMiddleware implements NestMiddleware {
    * Note that the middleware must have been use to make this method return the account.
    * @returns `undefined` if the middleware has not been used or the request's user is not logged in.
    */
-  public static getRequestAccount(req: Request): Account | undefined {
+  public static getRequestAuth(req: Request): Auth | undefined {
     if (
       this.REQUEST_KEY_STORE in req &&
-      req[this.REQUEST_KEY_STORE] instanceof Account
+      req[this.REQUEST_KEY_STORE] instanceof Auth
     ) {
-      return req[this.REQUEST_KEY_STORE] as Account;
+      return req[this.REQUEST_KEY_STORE] as Auth;
     }
 
     return undefined;
+  }
+
+  public static async getRequestAccount(
+    req: Request,
+  ): Promise<Account | undefined> {
+    const auth = RequestAccountResolverMiddleware.getRequestAuth(req);
+    return auth?.account();
   }
 
   constructor(
@@ -41,7 +49,7 @@ export class RequestAccountResolverMiddleware implements NestMiddleware {
       return next();
     }
 
-    let account: Account | null = null;
+    let auth: Auth | null = null;
 
     const destructured = authorization.split(/\s+/, 2).map((v) => v.trim());
     if (destructured.length !== 2) {
@@ -52,7 +60,7 @@ export class RequestAccountResolverMiddleware implements NestMiddleware {
 
     switch (type.toLowerCase()) {
       case 'bearer': {
-        account = await this.authService.validate(value);
+        auth = await this.authService.authenticate({ jwt: value });
 
         break;
       }
@@ -65,9 +73,7 @@ export class RequestAccountResolverMiddleware implements NestMiddleware {
         }
 
         const [email, password] = decoded.split(':', 2);
-        account = await this.authService
-          .loginIn(email, password)
-          .then((result) => result?.account ?? null);
+        auth = await this.authService.authenticate({ email, password });
 
         break;
       }
@@ -78,12 +84,12 @@ export class RequestAccountResolverMiddleware implements NestMiddleware {
       }
     }
 
-    if (account) {
+    if (auth) {
       Object.defineProperty(
         req,
         RequestAccountResolverMiddleware.REQUEST_KEY_STORE,
         {
-          value: account,
+          value: auth,
           writable: false,
         },
       );

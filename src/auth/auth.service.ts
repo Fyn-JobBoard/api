@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Repository } from 'typeorm';
+import { Auth } from './class/auth.class';
 import { JWTContent } from './types/jwt-content';
 
 @Injectable()
@@ -75,6 +76,32 @@ export class AuthService {
 
     return null;
   }
+  /**
+   * Retreive base auth class
+   */
+  public async authenticate(
+    auth:
+      | {
+          email: string;
+          password: string;
+        }
+      | {
+          jwt: string | JWTContent;
+        },
+  ): Promise<Auth | null> {
+    if ('jwt' in auth) {
+      const { jwt } = auth;
+      const decoded = typeof jwt === 'string' ? await this.decode(jwt) : jwt;
+      return decoded ? new Auth(decoded, this.accounts) : null;
+    } else {
+      const found = await this.accounts.findOneBy({
+        email: auth.email,
+        password: await hash(auth.password, process.env.BCRYPT_SALT ?? 10),
+      });
+
+      return found ? new Auth(found, this.accounts) : null;
+    }
+  }
 
   public async loginIn(
     email: string,
@@ -83,15 +110,14 @@ export class AuthService {
     account: Account;
     jwt: string;
   }> {
-    const found = await this.accounts.findOneBy({
-      email,
-      password: await hash(password, process.env.BCRYPT_SALT ?? 10),
-    });
+    const account = await this.authenticate({ email, password }).then((auth) =>
+      auth?.account(),
+    );
 
-    return found
+    return account
       ? {
-          account: found,
-          jwt: await this.jwtOf(found),
+          account,
+          jwt: await this.jwtOf(account),
         }
       : null;
   }

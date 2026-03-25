@@ -7,7 +7,6 @@ import {
 import { Reflector } from '@nestjs/core';
 import assert from 'assert';
 import { AccountsService } from 'src/accounts/accounts.service';
-import { Account } from 'src/accounts/entities/account.entity';
 import { Managed } from 'src/accounts/entities/managed.entity';
 import { RequestAccountResolverMiddleware } from 'src/auth/middlewares/request-account-resolver/request-account-resolver.middleware';
 import { AccountTypes } from 'src/common/enums/accountTypes';
@@ -39,11 +38,11 @@ export class IsLoggedGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const auth = RequestAccountResolverMiddleware.getRequestAccount(
+    const auth = RequestAccountResolverMiddleware.getRequestAuth(
       context.switchToHttp().getRequest(),
     );
 
-    if (!(auth instanceof Account)) {
+    if (!auth) {
       return false;
     }
     const handler = context.getHandler();
@@ -60,7 +59,9 @@ export class IsLoggedGuard implements CanActivate {
       this.reflector.get(IsManagedAnd, handler);
 
     if (managed_predicates && auth.type === AccountTypes.Managed) {
-      const managed = await this.accountServices.getModelOf(auth);
+      const managed = await this.accountServices.getModelOf(
+        await auth.account(),
+      );
       assert(managed instanceof Managed);
 
       if (

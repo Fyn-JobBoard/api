@@ -5,18 +5,18 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 /**
  * Return the current account if the user is logged in and the account.type match the given one
  */
-export const Account = createParamDecorator(
+export const Authenticated = createParamDecorator(
   (type: undefined | AccountTypes, ctx: ExecutionContext) => {
-    const account = RequestAccountResolverMiddleware.getRequestAccount(
+    const auth = RequestAccountResolverMiddleware.getRequestAuth(
       ctx.switchToHttp().getRequest(),
     );
 
-    if (account && (type === undefined || account.type === type)) {
-      return account;
+    if (auth && (type === undefined || auth.type === type)) {
+      return auth;
     }
 
     return undefined;
   },
 );
 
-export const AuthAccount = Account;
+export const AuthAccount = Authenticated;
