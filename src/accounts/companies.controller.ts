@@ -20,6 +20,7 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
+import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
@@ -27,7 +28,6 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 import { AccountsService } from './accounts.service';
 import { ListCompaniesResponseDto } from './dto/companies/list-companies.response.dto';
 import { UpdateCompanyDto } from './dto/companies/update-company.dto';
-import { Account } from './entities/account.entity';
 import { Company } from './entities/company.entity';
 
 @Controller('accounts/companies')
@@ -158,7 +158,7 @@ export class CompaniesController {
     dto: UpdateCompanyDto,
 
     @AuthAccount()
-    auth: Account,
+    auth: Auth,
   ) {
     return this.update(auth.id, dto);
   }
