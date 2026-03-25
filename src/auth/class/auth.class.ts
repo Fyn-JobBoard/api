@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Repository } from 'typeorm';
-import { BaseJWTContent, JWTContent } from '../types/jwt-content';
+import type { BaseJWTContent, JWTContent } from '../types/jwt-content';
 
 @Injectable()
 export class Auth {
