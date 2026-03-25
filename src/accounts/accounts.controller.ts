@@ -26,7 +26,7 @@ import {
   ApiResponse,
   refs,
 } from '@nestjs/swagger';
-import { Auth } from 'src/auth/class/auth.class';
+import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';

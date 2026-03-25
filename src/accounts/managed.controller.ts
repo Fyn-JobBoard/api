@@ -22,7 +22,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import assert from 'node:assert';
-import { Auth } from 'src/auth/class/auth.class';
+import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
