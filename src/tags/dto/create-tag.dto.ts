@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsDefined, IsString, MaxLength } from 'class-validator';
 export class CreateTagDto {
-  @ApiProperty() id!: number;
-  @ApiProperty() name!: string;
+  @IsDefined()
+  @IsString()
+  @MaxLength(60)
+  @ApiProperty({
+    type: 'string',
+    maxLength: 60,
+  })
+  name!: string;
 }
