@@ -9,4 +9,7 @@ export enum Permissions {
 
   VIEW_FORMATIONS = 1 << 5,
   MANAGE_FORMATIONS = 1 << 6,
+
+  VIEW_EXPERIENCES = 1 << 5,
+  MANAGE_EXPERIENCES = 1 << 6,
 }
