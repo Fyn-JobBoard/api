@@ -8,6 +8,7 @@ import {
   HttpException,
   NotFoundException,
   Body,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
@@ -154,8 +155,11 @@ export class TagsController {
     description: 'The updated tag after job removal',
     type: Tag,
   })
-  async removeFromJob(@Param('id') id: string, @Param('jobId') jobId: string) {
-    const tag = await this.tagsService.removeFromJob(+id, jobId);
+  async removeFromJob(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('jobId') jobId: string,
+  ) {
+    const tag = await this.tagsService.removeFromJob(id, jobId);
     if (tag instanceof HttpException) {
       throw tag;
     }
