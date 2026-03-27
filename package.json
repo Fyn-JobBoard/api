@@ -11,7 +11,7 @@
     "start": "nest start --env-file .env",
     "start:dev": "bun start --watch",
     "start:debug": "bun start:dev --debug",
-    "start:prod": "bun dist/main",
+    "start:prod": "bun start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

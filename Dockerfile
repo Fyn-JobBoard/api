@@ -14,7 +14,7 @@ FROM oven/bun:alpine AS prod
 
 WORKDIR /app
 
-COPY --from=dev . .
+COPY --from=dev /app .
 
 RUN bun run build
 
