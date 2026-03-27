@@ -1,20 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TagsService } from './tags.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Tag } from './entities/tag.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import appDatasource from 'src/app.datasource';
+import { TagsModule } from './tags.module';
 
 describe('TagsService', () => {
   let service: TagsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TagsService,
-        {
-          provide: getRepositoryToken(Tag),
-          useValue: {},
-        },
-      ],
+      imports: [TypeOrmModule.forRoot(appDatasource.options), TagsModule],
     }).compile();
 
     service = module.get<TagsService>(TagsService);

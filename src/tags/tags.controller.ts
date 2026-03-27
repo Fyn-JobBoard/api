@@ -28,6 +28,7 @@ import {
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Tag } from './entities/tag.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @UseGuards(IsLoggedGuard)
 @Controller('tags')
@@ -84,22 +85,8 @@ export class TagsController {
   @ApiOkResponse({
     description: 'Paginated list of tags',
   })
-  findAll(
-    @Query('search') search?: string,
-    @Query('page', {
-      transform: (v?: string) => parseInt(v ?? ''),
-    })
-    page?: number,
-    @Query('limit', {
-      transform: (v?: string) => parseInt(v ?? ''),
-    })
-    limit?: number,
-  ) {
-    return this.tagsService.findAll(
-      search,
-      isNaN(page as number) ? 1 : Math.max(1, page as number),
-      isNaN(limit as number) ? 20 : Math.max(1, limit as number),
-    );
+  async findAll(@Query() query: PaginationQueryDto & { search?: string }) {
+    return this.tagsService.search(query);
   }
 
   @Get('/:id')
@@ -114,7 +101,7 @@ export class TagsController {
     type: Tag,
   })
   async findOne(@Param('id') id: string) {
-    const tag = await this.tagsService.findOne(+id);
+    const tag = await this.tagsService.findOneBy(+id);
     if (!tag) {
       throw new NotFoundException();
     }

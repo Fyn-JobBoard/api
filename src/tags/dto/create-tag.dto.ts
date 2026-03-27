@@ -3,10 +3,10 @@ import { IsDefined, IsString, MaxLength } from 'class-validator';
 export class CreateTagDto {
   @IsDefined()
   @IsString()
-  @MaxLength(60)
+  @MaxLength(50)
   @ApiProperty({
     type: 'string',
-    maxLength: 60,
+    maxLength: 50,
   })
-  name!: string;
+  name: string;
 }

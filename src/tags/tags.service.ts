@@ -1,9 +1,11 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, ILike, In } from 'typeorm';
 import { Tag } from './entities/tag.entity';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+
 @Injectable()
 export class TagsService {
   constructor(@InjectRepository(Tag) private readonly tags: Repository<Tag>) {}
@@ -13,16 +15,17 @@ export class TagsService {
     return this.tags.save(tag);
   }
 
-  async findAll(
-    search?: string,
-    page = 1,
-    limit = 20,
-  ): Promise<{
+  async search(query: PaginationQueryDto & { search?: string }): Promise<{
     items: Tag[];
     page: number;
     pages: number;
   }> {
-    const where = search?.trim() ? { name: ILike(`%${search.trim()}%`) } : {};
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const where = query.search?.trim()
+      ? { name: ILike(`%${query.search.trim()}%`) }
+      : {};
 
     const [items, total] = await this.tags.findAndCount({
       where,
@@ -38,10 +41,8 @@ export class TagsService {
     };
   }
 
-  async findOne(id: number): Promise<Tag | null> {
-    return this.tags.findOne({
-      where: { id },
-    });
+  async findOneBy(id: number): Promise<Tag | null> {
+    return this.tags.findOneBy({ id });
   }
 
   async update(
@@ -52,7 +53,7 @@ export class TagsService {
       return new NotFoundException();
     }
     await this.tags.update({ id }, updateTagDto);
-    return (await this.findOne(id))!;
+    return (await this.findOneBy(id))!;
   }
 
   async removeFromJob(
@@ -72,18 +73,15 @@ export class TagsService {
   }
 
   async upsert(...tags: CreateTagDto[]): Promise<Tag[]> {
-    return this.tags
-      .upsert(
-        tags.map((tag) => ({
-          ...tag,
-          name: tag.name.trim(),
-        })),
-        ['name'],
-      )
-      .then(({ identifiers }) =>
-        Promise.all(
-          identifiers.map(async (raw) => (await this.findOne(+raw.id))!),
-        ),
-      );
+    const values = tags.map((tag) => ({
+      ...tag,
+      name: tag.name.trim(),
+    }));
+    await this.tags.upsert(values, ['name']);
+
+    return this.tags.find({
+      where: { name: In(values.map((tag) => tag.name)) },
+      order: { name: 'ASC' },
+    });
   }
 }
