@@ -4,11 +4,11 @@
   "description": "",
   "author": "",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start --env-file .env",
+    "start": "nest start",
     "start:dev": "bun start --watch",
     "start:debug": "bun start:dev --debug",
     "start:prod": "bun start",

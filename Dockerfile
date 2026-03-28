@@ -10,11 +10,7 @@ EXPOSE 3000
 
 CMD ["bun", "start:dev"]
 
-FROM oven/bun:alpine AS prod
-
-WORKDIR /app
-
-COPY --from=dev /app .
+FROM dev AS prod
 
 RUN bun run build
 
