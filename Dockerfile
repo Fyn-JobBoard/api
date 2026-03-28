@@ -18,4 +18,4 @@ RUN bun remove -p
 
 EXPOSE 3000
 
-CMD ["bun", "start:prod"]
+ENTRYPOINT [ "prod.sh" ]
