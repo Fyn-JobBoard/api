@@ -1,3 +1,5 @@
+#!/usr/bin/sh
+
 if [ ! "$NODE_ENV" = "production" ]
 then
 echo Cannot run the prod script when the environement is not prod.
