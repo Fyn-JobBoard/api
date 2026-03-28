@@ -14,7 +14,7 @@ FROM dev AS prod
 
 RUN bun run build
 
-RUN bun remove -p
+RUN rm -rf node_modules && bun install --production
 
 EXPOSE 3000
 
