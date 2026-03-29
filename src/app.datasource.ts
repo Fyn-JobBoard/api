@@ -11,7 +11,15 @@ export default new DataSource({
   password: process.env.DB_PASSWORD ?? '',
   ssl:
     typeof process.env.DB_SSL === 'string' &&
-    ['yes', '1', 'with', 'true'].includes(process.env.DB_SSL),
+    ['yes', '1', 'with', 'true'].includes(process.env.DB_SSL) &&
+    (process.env.CA_CERT
+      ? {
+          rejectUnauthorized: true,
+          ca: process.env.CA_CERT,
+        }
+      : {
+          rejectUnauthorized: false,
+        }),
   entities: [join(__dirname, '/**/*.entity.{js,ts}')],
   migrations: [join(__dirname, '../db/migrations/*.{ts,js}')],
 });
