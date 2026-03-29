@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/usr/bin/env sh
 
 if [ ! "$NODE_ENV" = "production" ]
 then
@@ -8,5 +8,10 @@ fi
 
 echo "Launching migrations..."
 bun orm:connected migration:run
+if [ ! $? = 0 ]
+then
+exit 1
+fi
+
 echo "Database's structure is up-to-date. Starting the api..."
 bun start:prod $*
