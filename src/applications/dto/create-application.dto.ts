@@ -22,4 +22,15 @@ export class CreateApplicationDto {
     enum: ApplicationStatus,
   })
   status: ApplicationStatus;
+
+  @IsDefined()
+  @IsString()
+  @MaxLength(255)
+  @ApiProperty({
+    description: 'The attachment of the application',
+    maxLength: 255,
+    type: 'string',
+    example: 'uploads/resume.pdf',
+  })
+  attachment: string;
 }

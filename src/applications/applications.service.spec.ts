@@ -3,6 +3,7 @@ import { ApplicationsService } from './applications.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import appDatasource from 'src/app.datasource';
 import { ApplicationsModule } from './applications.module';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('ApplicationsService', () => {
   let service: ApplicationsService;

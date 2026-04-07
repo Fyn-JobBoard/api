@@ -7,7 +7,10 @@ import {
   Delete,
   Put,
   Query,
-  Req,
+  UseInterceptors,
+  UploadedFile,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
@@ -27,7 +30,17 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 import { UseGuards } from '@nestjs/common';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { RequestUser } from 'src/common/dto/types/request-user.type';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { BadRequestException } from '@nestjs/common';
+import type { JWTContent } from 'src/auth/types/jwt-content';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Job } from 'src/jobs/entities/job.entity';
+import { Student } from 'src/accounts/entities/student.entity';
+import { AuthUser } from 'src/auth/decorators/getters/account/auth-user.decorator';
+import { ApplicationStatus } from 'src/common/enums/applicationStatus';
 
 @UseGuards(IsLoggedGuard)
 @Controller('applications')
@@ -38,43 +51,124 @@ import { RequestUser } from 'src/common/dto/types/request-user.type';
   description: 'You must be logged to access to this resource.',
 })
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+  constructor(
+    private readonly applicationsService: ApplicationsService,
+    @InjectRepository(Job)
+    private readonly jobs: Repository<Job>,
+    @InjectRepository(Student)
+    private readonly students: Repository<Student>,
+  ) {}
 
   @Post('/')
   @Version('1')
   @ApiOperation({ summary: 'Create a new application' })
   @ApiBody({ type: CreateApplicationDto })
   @IsA([AccountTypes.Student])
-  @ApiParam({ name: 'job_id', type: 'string' })
-  @ApiParam({ name: 'student_id', type: 'string' })
+  @ApiParam({ name: 'jobId', type: String })
   @ApiResponse({
     description: 'The application has been successfully created.',
     type: Application,
   })
+  @UseInterceptors(
+    FileInterceptor('attachment', {
+      storage: diskStorage({
+        destination: './uploads/cv',
+        filename: (_req, file, callback) => {
+          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          callback(null, `${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (_req, file, callback) => {
+        if (file.mimetype !== 'application/pdf') {
+          return callback(
+            new BadRequestException('Only PDF files are allowed'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
   async create(
     @Body() createApplicationDto: CreateApplicationDto,
-    @Param('job_id') jobId: string,
-    @Param('student_id') studentId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Param('jobId') jobId: string,
+    @AuthUser() user: JWTContent,
   ) {
+    if (!file) {
+      throw new BadRequestException('Attachment is required');
+    }
+    const job = await this.jobs.findOneBy({ id: jobId });
+    if (!job) {
+      throw new NotFoundException('Job not found');
+    }
+
+    const student = await this.students.findOneBy({ id: user.id });
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
     return this.applicationsService.create(
-      createApplicationDto,
-      jobId,
-      studentId,
+      {
+        ...createApplicationDto,
+        attachment: file.filename,
+      },
+      job,
+      student,
     );
   }
 
   @Get('/')
   @Version('1')
   @IsA([AccountTypes.Admin])
+  @ApiOperation({ summary: 'Get all applications with pagination' })
   async findAll(@Query() query: PaginationQueryDto) {
     return this.applicationsService.findAll(query);
+  }
+  @Get('/mine')
+  @Version('1')
+  @IsA([AccountTypes.Student])
+  @ApiOperation({
+    summary: 'Get all applications of the authenticated student',
+  })
+  @ApiResponse({
+    description: 'List of applications of the authenticated student',
+    type: [Application],
+  })
+  async findMine(
+    @AuthUser() user: JWTContent,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.applicationsService.findByStudent(user.id, query);
   }
 
   @Get('/:id')
   @Version('1')
   @IsA([AccountTypes.Student, AccountTypes.Admin, AccountTypes.Company])
-  async findOne(@Param('id') id: string, @Req() req: { user: RequestUser }) {
-    return this.applicationsService.findOne(id, req.user);
+  @ApiOperation({ summary: 'Get a specific application' })
+  @ApiParam({ name: 'id', type: 'string' })
+  async findOne(@Param('id') id: string, @AuthUser() user: JWTContent) {
+    const application = await this.applicationsService.findOne(id);
+    if (user.type === AccountTypes.Admin) {
+      return application;
+    }
+
+    if (
+      user.type === AccountTypes.Student &&
+      application.student.id === user.id
+    ) {
+      return application;
+    }
+
+    if (
+      user.type === AccountTypes.Company &&
+      application.job.company.id === user.id
+    ) {
+      return application;
+    }
+    throw new ForbiddenException('You do not have access to this resource');
   }
 
   @Put('/:id')
@@ -90,9 +184,43 @@ export class ApplicationsController {
   async update(
     @Param('id') id: string,
     @Body() updateApplicationDto: UpdateApplicationDto,
-    @Req() req: { user: RequestUser },
+    @AuthUser() user: JWTContent,
   ) {
-    return this.applicationsService.update(id, updateApplicationDto, req.user);
+    const application = await this.applicationsService.findOne(id);
+
+    const isOwner =
+      user.type === AccountTypes.Student && application.student.id === user.id;
+
+    const isAdmin = user.type === AccountTypes.Admin;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You cannot update this application');
+    }
+
+    if (!application.job.active) {
+      throw new BadRequestException(
+        'You cannot update an application for a closed job',
+      );
+    }
+
+    if (
+      application.status === ApplicationStatus.Accepted ||
+      application.status === ApplicationStatus.Refused
+    ) {
+      throw new BadRequestException(
+        'This application can no longer be updated',
+      );
+    }
+
+    if (
+      user.type === AccountTypes.Student &&
+      application.status !== ApplicationStatus.Draft
+    ) {
+      throw new BadRequestException(
+        'A student can only update a draft application',
+      );
+    }
+    return this.applicationsService.update(id, updateApplicationDto);
   }
 
   @Delete('/:id')
@@ -104,7 +232,11 @@ export class ApplicationsController {
     description: 'The application has been successfully deleted.',
     type: Application,
   })
-  async remove(@Param('id') id: string, @Req() req: { user: RequestUser }) {
-    return this.applicationsService.remove(id, req.user.id);
+  async remove(@Param('id') id: string, @AuthUser() user: JWTContent) {
+    const application = await this.applicationsService.findOne(id);
+    if (application.student.id !== user.id) {
+      throw new ForbiddenException('You do not have access to this resource');
+    }
+    return this.applicationsService.remove(id);
   }
 }
