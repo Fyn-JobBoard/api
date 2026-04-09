@@ -1,15 +1,17 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class AddAttachmentColumnOnApplications1775573286154 implements MigrationInterface {
+  private readonly COLUMN = new TableColumn({
+    name: 'attachment',
+    type: 'varchar',
+    length: '255',
+  });
+
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD "attachment" character varying(255) NOT NULL`,
-    );
+    await queryRunner.addColumn('applications', this.COLUMN);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "attachment"`,
-    );
+    await queryRunner.dropColumn('applications', this.COLUMN);
   }
 }

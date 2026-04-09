@@ -12,6 +12,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import assert from 'node:assert';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
@@ -39,8 +40,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Job } from 'src/jobs/entities/job.entity';
 import { Student } from 'src/accounts/entities/student.entity';
-import { AuthUser } from 'src/auth/decorators/getters/account/auth-user.decorator';
 import { ApplicationStatus } from 'src/common/enums/applicationStatus';
+import { Authenticated } from 'src/auth/decorators/getters/account/account.decorator';
 
 @UseGuards(IsLoggedGuard)
 @Controller('applications')
@@ -96,7 +97,7 @@ export class ApplicationsController {
     @Body() createApplicationDto: CreateApplicationDto,
     @UploadedFile() file: Express.Multer.File,
     @Param('jobId') jobId: string,
-    @AuthUser() user: JWTContent,
+    @Authenticated() user: JWTContent,
   ) {
     if (!file) {
       throw new BadRequestException('Attachment is required');
@@ -107,9 +108,7 @@ export class ApplicationsController {
     }
 
     const student = await this.students.findOneBy({ id: user.id });
-    if (!student) {
-      throw new NotFoundException('Student not found');
-    }
+    assert(student, 'Authenticated student account should always exist.');
     return this.applicationsService.create(
       {
         ...createApplicationDto,
@@ -138,7 +137,7 @@ export class ApplicationsController {
     type: [Application],
   })
   async findMine(
-    @AuthUser() user: JWTContent,
+    @Authenticated() user: JWTContent,
     @Query() query: PaginationQueryDto,
   ) {
     return this.applicationsService.findByStudent(user.id, query);
@@ -149,7 +148,7 @@ export class ApplicationsController {
   @IsA([AccountTypes.Student, AccountTypes.Admin, AccountTypes.Company])
   @ApiOperation({ summary: 'Get a specific application' })
   @ApiParam({ name: 'id', type: 'string' })
-  async findOne(@Param('id') id: string, @AuthUser() user: JWTContent) {
+  async findOne(@Param('id') id: string, @Authenticated() user: JWTContent) {
     const application = await this.applicationsService.findOne(id);
     if (user.type === AccountTypes.Admin) {
       return application;
@@ -184,7 +183,7 @@ export class ApplicationsController {
   async update(
     @Param('id') id: string,
     @Body() updateApplicationDto: UpdateApplicationDto,
-    @AuthUser() user: JWTContent,
+    @Authenticated() user: JWTContent,
   ) {
     const application = await this.applicationsService.findOne(id);
 
@@ -232,7 +231,7 @@ export class ApplicationsController {
     description: 'The application has been successfully deleted.',
     type: Application,
   })
-  async remove(@Param('id') id: string, @AuthUser() user: JWTContent) {
+  async remove(@Param('id') id: string, @Authenticated() user: JWTContent) {
     const application = await this.applicationsService.findOne(id);
     if (application.student.id !== user.id) {
       throw new ForbiddenException('You do not have access to this resource');
