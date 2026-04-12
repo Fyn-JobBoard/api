@@ -26,6 +26,9 @@ export class Application {
   })
   status: ApplicationStatus;
 
+  @Column({ type: 'varchar', length: 255 })
+  attachment: string;
+
   @ManyToOne(() => Student, (student) => student.applications, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
