@@ -4,11 +4,11 @@ import * as project from '../package.json';
 
 @Injectable()
 export class AppService {
-  getPing(request: Request) {
+  getPing(request?: Request) {
     return {
       uptime: Math.floor(process.uptime() * 1e3),
       version: project.version,
-      client_ip: request.ip,
+      client_ip: request?.ip,
       api_version: 1,
     };
   }
