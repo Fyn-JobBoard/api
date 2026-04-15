@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import appDatasource from 'src/app.datasource';
 import { SkillsController } from './skills.controller';
-import { SkillsService } from './skills.service';
+import { SkillsModule } from './skills.module';
 
 describe('SkillsController', () => {
   let controller: SkillsController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [SkillsController],
-      providers: [SkillsService],
+      imports: [TypeOrmModule.forRoot(appDatasource.options), SkillsModule],
     }).compile();
 
     controller = module.get<SkillsController>(SkillsController);

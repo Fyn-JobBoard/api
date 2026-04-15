@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { Student } from 'src/accounts/entities/student.entity';
 import { SkillTypes } from 'src/common/enums/skillsTypes';
 import {
@@ -12,15 +14,24 @@ import {
 @Entity('skills')
 export class Skill {
   @PrimaryGeneratedColumn('increment')
+  @ApiProperty({
+    type: 'integer',
+  })
   id: number;
 
   @Column('varchar', {
     unique: true,
     length: 60,
   })
+  @ApiProperty({
+    type: 'string',
+  })
   name: string;
 
   @Column('enum', { enum: SkillTypes, enumName: 'skill_type' })
+  @ApiProperty({
+    enum: () => SkillTypes,
+  })
   type: SkillTypes;
 
   @ManyToMany(() => Student, (student) => student.skills, {
@@ -36,5 +47,6 @@ export class Skill {
       name: 'skill_id',
     },
   })
+  @Exclude()
   students: Relation<Student>[];
 }
