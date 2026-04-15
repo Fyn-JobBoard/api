@@ -40,7 +40,8 @@ export class CreateExperienceDto {
   end_date?: string;
 
   @ApiProperty({
-    type: () => Company,
+    type: 'string',
+    description: 'Id of the company the student worked in',
     required: false,
   })
   @IsOptional()
