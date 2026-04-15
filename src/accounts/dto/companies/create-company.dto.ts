@@ -2,11 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
   IsDefined,
+  IsInt,
   IsOptional,
+  IsPositive,
   IsString,
   IsUrl,
   MaxLength,
 } from 'class-validator';
+import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
+import { Exists } from 'src/common/validators/exists/exists.decorator';
 
 export class CreateCompanyDto {
   @IsDefined()
@@ -34,6 +38,16 @@ export class CreateCompanyDto {
     format: 'date',
   })
   creation_date: Date;
+
+  @IsDefined()
+  @ApiProperty({
+    type: 'integer',
+    description: 'The id of the activity domain the company is associed to',
+  })
+  @IsPositive()
+  @IsInt()
+  @Exists(() => ActivityDomain)
+  activity_domain_id: number;
 
   @IsOptional()
   @IsString()

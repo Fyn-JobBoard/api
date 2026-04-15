@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Company } from 'src/accounts/entities/company.entity';
 import { Job } from 'src/jobs/entities/job.entity';
 import {
   Column,
@@ -44,4 +45,11 @@ export class ActivityDomain {
   })
   @Exclude()
   jobs: Relation<Job>[];
+
+  @OneToMany(() => Company, (company) => company.activity_domain, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  @Exclude()
+  companies: Relation<Company>[];
 }

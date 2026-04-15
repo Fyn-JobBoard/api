@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpException,
   NotFoundException,
@@ -124,7 +125,14 @@ export class CompaniesController {
 
     @Body()
     dto: UpdateCompanyDto,
+
+    @AuthAccount()
+    auth: Auth,
   ) {
+    if (!(auth.type === AccountTypes.Admin || auth.id === id)) {
+      throw new ForbiddenException();
+    }
+
     const updated = await this.accountsService.update(
       id,
       Object.assign(new UpdateCompanyDto(), dto),
@@ -160,6 +168,6 @@ export class CompaniesController {
     @AuthAccount()
     auth: Auth,
   ) {
-    return this.update(auth.id, dto);
+    return this.update(auth.id, dto, auth);
   }
 }

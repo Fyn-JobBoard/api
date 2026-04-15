@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
 import { Experience } from 'src/experiences/entities/experience.entity';
 import { Job } from 'src/jobs/entities/job.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryColumn,
   type Relation,
@@ -87,4 +90,16 @@ export class Company extends LinkedToAccount {
     isArray: true,
   })
   referenced_experiences: Relation<Experience>[];
+
+  @JoinColumn({
+    name: 'activity_domain_id',
+  })
+  @ManyToOne(() => ActivityDomain, (activity) => activity.companies, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  @ApiProperty({
+    type: () => ActivityDomain,
+  })
+  activity_domain: Relation<ActivityDomain>;
 }
