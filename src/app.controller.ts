@@ -8,7 +8,7 @@ export class AppController {
 
   @Get('/')
   @Version('1')
-  getHello(
+  getPing(
     @Req()
     request: Request,
     @Query('only')
