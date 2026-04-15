@@ -1,21 +1,12 @@
-import {
-  Injectable,
-  NotAcceptableException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from 'src/accounts/entities/student.entity';
-import { createCheckers } from 'ts-interface-checker';
 import { Repository } from 'typeorm';
+import { SearchPredicates } from './class/search-predicates.class';
 import { ActiveSearch } from './entities/active-search.entity';
-import type { SearchPredicates } from './types/search';
-import SearchPredicatesSchema from './types/search.d-ti';
 
 @Injectable()
 export class ActiveSearchesService {
-  public readonly predicatesValidator = createCheckers(SearchPredicatesSchema)
-    .SearchPredicates;
-
   constructor(
     @InjectRepository(ActiveSearch)
     private readonly searches: Repository<ActiveSearch>,
@@ -43,13 +34,6 @@ export class ActiveSearchesService {
    * Create a new active search for the given student
    */
   public async create(for_student: Student, criterias: SearchPredicates) {
-    const schemaErrors = this.predicatesValidator.strictValidate(criterias);
-    if (schemaErrors) {
-      return new NotAcceptableException(undefined, {
-        cause: schemaErrors,
-      });
-    }
-
     const search = this.searches.create({
       criterias,
       student: for_student,
