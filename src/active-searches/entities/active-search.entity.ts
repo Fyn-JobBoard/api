@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Student } from 'src/accounts/entities/student.entity';
 import {
   Column,
@@ -7,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
-import type { SearchPredicates } from '../types/search';
+import { SearchPredicates } from '../class/search-predicates.class';
 
 @Entity('active_searches')
 export class ActiveSearch {
@@ -19,8 +20,14 @@ export class ActiveSearch {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'student_id' })
+  @ApiProperty({
+    type: () => Student,
+  })
   student: Relation<Student>;
 
   @Column({ type: 'json' })
+  @ApiProperty({
+    type: () => SearchPredicates,
+  })
   criterias: SearchPredicates;
 }
