@@ -1,106 +1,108 @@
 import {
-  BadRequestException,
   Controller,
-  Delete,
   Get,
-  HttpException,
   NotFoundException,
   NotImplementedException,
   Param,
+  Put,
+  UseGuards,
+  Version,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AccountsService } from 'src/accounts/accounts.service';
+import { Auth } from 'src/auth/class/auth.class';
+import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
+import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
+import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
+import { AccountTypes } from 'src/common/enums/accountTypes';
+import { Permissions } from 'src/common/enums/permissions';
 import { ActiveSearchesService } from './active-searches.service';
+import { ActiveSearch } from './entities/active-search.entity';
 
 @Controller('searches')
+@UseGuards(IsLoggedGuard)
+@ApiBearerAuth()
+@ApiBasicAuth()
+@ApiResponse({
+  status: '4XX',
+  description: 'You must be logged to access to this resource.',
+})
 export class ActiveSearchesController {
   constructor(
-    private readonly service: ActiveSearchesService,
+    private readonly searchesService: ActiveSearchesService,
     private readonly accounts: AccountsService,
   ) {}
 
-  @Get('/:search_id')
-  @ApiProperty({
-    description: 'Get a single active search.',
+  @Get('/:id')
+  @Version('1')
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.VIEW_ACTIVE_SEARCHES),
   })
   @ApiParam({
-    name: 'search_id',
-    description: 'The id of the active search',
-    required: true,
-    type: 'string',
+    name: 'id',
+    description: 'id the of the active search',
   })
-  public async get(
-    @Param('search_id')
-    search_id: string,
-  ) {
-    const id = parseInt(search_id);
-    if (isNaN(id))
-      throw new BadRequestException('search_id must be an integer.');
+  @ApiOkResponse({
+    type: () => ActiveSearch,
+  })
+  @ApiOperation({
+    description: 'Get a specific active search',
+  })
+  public async find(
+    @Param('id', {
+      transform: (value: string) => parseInt(value),
+    })
+    id: number,
 
-    const search = await this.service.find(id);
-    if (!search) throw new NotFoundException();
+    @AuthAccount()
+    auth: Auth,
+  ) {
+    const search = await this.searchesService.find(id);
+    if (
+      !search ||
+      !(
+        [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
+        search.student.id === auth.id
+      )
+    ) {
+      throw new NotFoundException();
+    }
+
     return search;
   }
 
-  @Delete('/:search_id')
-  @ApiProperty({
-    description: 'Delete a single active search.',
+  @Put('/:id')
+  @Version('1')
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_ACTIVE_SEARCHES),
   })
-  @ApiParam({
-    name: 'search_id',
-    description: 'The id of the active search to delete',
-    required: true,
-  })
-  public async delete(
-    @Param('search_id')
-    search_id: string,
+  public async edit(
+    @Param('id', {
+      transform: (value: string) => parseInt(value),
+    })
+    id: number,
+
+    @AuthAccount()
+    auth: Auth,
   ) {
-    const id = parseInt(search_id);
-    if (isNaN(id))
-      throw new BadRequestException('search_id must be an integer.');
+    const search = await this.searchesService.find(id);
+    if (
+      !search ||
+      !(
+        [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
+        search.student.id === auth.id
+      )
+    ) {
+      throw new NotFoundException();
+    }
 
-    const deleted = await this.service.delete(id);
-    if (deleted instanceof HttpException) throw deleted;
-
-    return deleted;
-  }
-
-  // ---- For students ---- \\
-
-  @Get('/student/:student_id')
-  @ApiOperation({
-    description:
-      'Get all the active searches for the given student or the connected one.',
-  })
-  @ApiParam({
-    name: 'student_id',
-    required: false,
-    type: 'uuid',
-    description: 'The student id of which you want to get the active searches.',
-  })
-  public for(
-    @Param('student_id')
-    student_id: string,
-  ) {
-    throw new NotImplementedException();
-  }
-
-  @Delete('/student/:student_id')
-  @ApiOperation({
-    description:
-      'Delete all the active searches of the given student or the connected one.',
-  })
-  @ApiParam({
-    name: 'student_id',
-    required: false,
-    type: 'uuid',
-    description:
-      'The student id of which you want to delete the active searches.',
-  })
-  public clear(
-    @Param('student_id')
-    student_id: string,
-  ) {
     throw new NotImplementedException();
   }
 }
