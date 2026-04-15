@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpException,
   NotFoundException,
@@ -280,28 +281,17 @@ export class AccountsController {
     @Param('id')
     id: string,
   ) {
-    let account: Account | null = null;
-    if (id) {
-      const found = await this.accountsService.find(id);
-      if (!found) {
-        throw new NotFoundException();
-      }
-
-      if (
-        !(
-          [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
-          auth.id === found.id
-        )
-      ) {
-        throw new UnauthorizedException();
-      }
-
-      account = found;
+    if (
+      !(
+        [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
+        auth.id === id
+      )
+    ) {
+      throw new ForbiddenException();
     }
-    account ??= await auth.account();
 
     const update = await this.accountsService.update(
-      account,
+      id,
       Object.assign(new UpdateAccountDto(), dto),
     );
     if (update instanceof HttpException) {
