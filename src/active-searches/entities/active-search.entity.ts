@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
-import { SearchPredicates } from '../class/search-predicates.class';
+import { SearchPredicates } from '../dto/search-predicates.dto';
 
 @Entity('active_searches')
 export class ActiveSearch {

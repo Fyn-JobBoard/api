@@ -12,4 +12,7 @@ export enum Permissions {
 
   VIEW_EXPERIENCES = 1 << 5,
   MANAGE_EXPERIENCES = 1 << 6,
+
+  VIEW_ACTIVE_SEARCHES = 1 << 7,
+  MANAGE_ACTIVE_SEARCHES = 1 << 8,
 }
