@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpException,
   NotFoundException,
@@ -123,7 +124,14 @@ export class StudentsController {
 
     @Body()
     dto: UpdateStudentDto,
+
+    @AuthAccount()
+    auth: Auth,
   ) {
+    if (!(auth.type === AccountTypes.Admin || auth.id === id)) {
+      throw new ForbiddenException();
+    }
+
     const updated = await this.accountsService.update(
       id,
       Object.assign(new UpdateStudentDto(), dto),
@@ -159,6 +167,6 @@ export class StudentsController {
     @AuthAccount()
     auth: Auth,
   ) {
-    return this.update(auth.id, dto);
+    return this.update(auth.id, dto, auth);
   }
 }
