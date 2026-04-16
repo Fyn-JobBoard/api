@@ -11,6 +11,13 @@ import type { Auth } from 'src/auth/class/auth.class';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { FindOptionsWhere } from 'typeorm';
 import { ILike } from 'typeorm';
+
+export interface PaginatedResult<T> {
+  items: T[];
+  page: number;
+  pages: number;
+}
+
 @Injectable()
 export class JobsService {
   constructor(@InjectRepository(Job) private readonly jobs: Repository<Job>) {}
@@ -26,11 +33,7 @@ export class JobsService {
   async search(
     query: PaginationQueryDto & { search?: string },
     user: Auth,
-  ): Promise<{
-    items: Job[];
-    page: number;
-    pages: number;
-  }> {
+  ): Promise<PaginatedResult<Job>> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
@@ -69,14 +72,23 @@ export class JobsService {
     return job;
   }
 
-  async update(id: string, job: Job | string): Promise<Job> {
+  async update(
+    id: string,
+    updateJobDto: UpdateJobDto,
+  ): Promise<Job | NotFoundException> {
     const job = await this.findOne(id);
-    Object.assign(job, Job);
+    if (job instanceof NotFoundException) {
+      return job;
+    }
+    Object.assign(job, updateJobDto);
     return this.jobs.save(job);
   }
 
-  async remove(id: string): Promise<Job> {
-    const job = await this.findOne(id);
+  async remove(id: string, job: Job): Promise<Job | NotFoundException> {
+    const existing = await this.findOne(id);
+    if (existing instanceof NotFoundException) {
+      return existing;
+    }
     await this.jobs.remove(job);
     return job;
   }
