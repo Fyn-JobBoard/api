@@ -13,6 +13,10 @@ import { SearchPredicates } from '../dto/search-predicates.dto';
 @Entity('active_searches')
 export class ActiveSearch {
   @PrimaryGeneratedColumn('increment')
+  @ApiProperty({
+    type: 'integer',
+    minimum: 0,
+  })
   id: number;
 
   @ManyToOne(() => Student, (student) => student.activeSearches, {
