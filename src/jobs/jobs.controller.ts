@@ -34,6 +34,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Company } from 'src/accounts/entities/company.entity';
 import { BadRequestException } from '@nestjs/common';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { Admin } from 'typeorm';
 
 @UseGuards(IsLoggedGuard)
 @Controller('jobs')
@@ -46,15 +47,14 @@ import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
-  @Post('/')
+  @Post('/company_id')
   @Version('1')
   @ApiOperation({
     summary: 'Create a new job offer',
     description: 'Only admin and company users can create a new job offer',
   })
-  @IsA([AccountTypes.Admin, AccountTypes.Company])
+  @IsA([AccountTypes.Company])
   @ApiBody({ type: CreateJobDto })
-  @ApiParam({ name: 'id', type: 'string' })
   @ApiOkResponse({
     description: 'The created job offer',
     type: Job,
@@ -84,6 +84,51 @@ export class JobsController {
         active: true,
       },
       company,
+    );
+  }
+
+  @Post('/')
+  @Version('1')
+  @ApiOperation({
+    summary: 'Create multiple job offers for a company',
+    description:
+      'Only Admin users can create multiple job offers for a company',
+  })
+  @IsA([AccountTypes.Admin])
+  @ApiBody({ type: [CreateJobDto] })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiOkResponse({
+    description: 'The created job offers',
+    type: Job,
+  })
+  async createManyForCompany(
+    @Body() dto: CreateJobDto,
+    @Authenticated() user: Auth,
+  ) {
+    let admin: Admin | null = null;
+
+    if (user.type === AccountTypes.Admin) {
+      admin = (await user.account()) as unknown as Admin | null;
+
+      if (!admin) {
+        throw new NotFoundException('Admin not found');
+      }
+    }
+
+    if (dto.remuneration && dto.remuneration < 0) {
+      throw new BadRequestException('Invalid remuneration');
+    }
+
+    if (dto.period_duration && dto.period_duration <= 0) {
+      throw new BadRequestException('Invalid duration');
+    }
+
+    return this.jobsService.create(
+      {
+        ...dto,
+        active: true,
+      },
+      admin,
     );
   }
 
@@ -150,7 +195,7 @@ export class JobsController {
     summary: 'Update a job offer',
     description: 'Only company users can update a job offer',
   })
-  @IsA([AccountTypes.Company])
+  @IsA([AccountTypes.Company, AccountTypes.Admin])
   @ApiParam({ name: 'id', type: 'string' })
   @ApiBody({ type: UpdateJobDto })
   @ApiOkResponse({

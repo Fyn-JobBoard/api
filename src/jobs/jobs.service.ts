@@ -14,10 +14,7 @@ import { ILike } from 'typeorm';
 @Injectable()
 export class JobsService {
   constructor(@InjectRepository(Job) private readonly jobs: Repository<Job>) {}
-  async create(
-    dto: CreateJobDto & { active: boolean },
-    company: Company | null,
-  ): Promise<Job> {
+  async create(dto: CreateJobDto, company: Company): Promise<Job> {
     const job = this.jobs.create({
       ...dto,
       ...(company ? { company } : {}),
@@ -37,8 +34,9 @@ export class JobsService {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
-    const where: FindOptionsWhere<Job> = query.search?.trim()
-      ? { title: ILike(`%${query.search.trim()}%`) }
+    const searchQuery = query.search?.trim();
+    const where: FindOptionsWhere<Job> = searchQuery
+      ? { title: ILike(`%${searchQuery}%`) }
       : {};
 
     if (user.type === AccountTypes.Student) {
@@ -60,20 +58,20 @@ export class JobsService {
     };
   }
 
-  async findOne(id: string): Promise<Job> {
+  async findOne(id: string): Promise<Job | NotFoundException> {
     const job = await this.jobs.findOne({
       where: { id },
       relations: ['company'],
     });
     if (!job) {
-      throw new NotFoundException('Job not found');
+      return new NotFoundException('Job not found');
     }
     return job;
   }
 
-  async update(id: string, updateJobDto: UpdateJobDto): Promise<Job> {
+  async update(id: string, job: Job | string): Promise<Job> {
     const job = await this.findOne(id);
-    Object.assign(job, updateJobDto);
+    Object.assign(job, Job);
     return this.jobs.save(job);
   }
 
@@ -81,28 +79,5 @@ export class JobsService {
     const job = await this.findOne(id);
     await this.jobs.remove(job);
     return job;
-  }
-
-  async upsert(
-    jobsDto: (CreateJobDto & { active?: boolean; id?: string })[],
-    company?: Company | null,
-  ): Promise<Job[]> {
-    const values = jobsDto.map((job) =>
-      this.jobs.create({
-        ...job,
-        title: job.title.trim(),
-        ...(company ? { company } : {}),
-      }),
-    );
-    const result = await this.jobs.upsert(values, ['id']);
-    const identifiers = result.identifiers.filter((v) => v && v.id);
-
-    if (identifiers.length === 0) return [];
-
-    return this.jobs.find({
-      where: identifiers,
-      relations: ['company'],
-      order: { title: 'ASC' },
-    });
   }
 }
