@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -32,7 +33,6 @@ import {
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
 import { CreateJobDto } from './dto/create-job.dto';
@@ -120,6 +120,7 @@ export class JobsController {
     required: false,
     description: 'Page number for pagination',
     example: 1,
+    minimum: 1,
   })
   @ApiQuery({
     name: 'limit',
@@ -132,10 +133,24 @@ export class JobsController {
     type: ListJobsResponse,
   })
   async findAll(
-    @Query() query: PaginationQueryDto & { search?: string },
     @Authenticated() user: Auth,
+
+    @Query('page', {
+      transform: (value?: string) => parseInt(value ?? '1'),
+    })
+    page: number,
+    @Query('limit', {
+      transform: (value?: string) => parseInt(value ?? '20'),
+    })
+    limit: number,
+    @Query('search')
+    search?: string,
   ) {
-    return this.jobsService.search(query, user);
+    if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
+      throw new BadRequestException();
+    }
+
+    return this.jobsService.search({ page, limit, search }, user);
   }
 
   @Get('/:job_id')

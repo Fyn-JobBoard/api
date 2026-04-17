@@ -26,10 +26,7 @@ export class JobsService {
     query: PaginationQueryDto & { search?: string },
     user: Auth,
   ): Promise<ListJobsResponse> {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 20;
-
-    let sql = this.jobs.createQueryBuilder();
+    const sql = this.jobs.createQueryBuilder();
 
     let q: string | undefined;
     if ((q = query.search?.trim())) {
@@ -51,15 +48,15 @@ export class JobsService {
 
     sql
       .orderBy('id')
-      .skip((page - 1) * limit)
-      .take(limit)
+      .skip((query.page - 1) * query.limit)
+      .take(query.limit)
       .relation('company');
 
     const [list, total] = await sql.getManyAndCount();
     return {
       list,
-      page,
-      pages: Math.ceil(total / limit),
+      page: query.page,
+      pages: Math.ceil(total / query.limit),
     };
   }
 

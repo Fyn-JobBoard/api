@@ -113,12 +113,12 @@ export class AccountsService {
     });
 
     const repository = this.getRepositoryOf(this.getRelatedModelOf(type));
-    await repository.insert({
-      id: created.id,
+    const created_entity = repository.create({
       ...dto,
+      id: created.id,
     });
 
-    return this.getModelOf(created);
+    return repository.save(created_entity);
   }
 
   public async update(

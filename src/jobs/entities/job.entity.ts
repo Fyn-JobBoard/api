@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { Company } from 'src/accounts/entities/company.entity';
 import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
 import { Application } from 'src/applications/entities/application.entity';
@@ -57,11 +58,11 @@ export class Job {
   apply_link?: string;
 
   @Column('enum', {
-    enum: () => Languages,
+    enum: Languages,
     array: true,
   })
   @ApiProperty({
-    enum: () => Languages,
+    enum: Languages,
     isArray: true,
   })
   languages: Languages[];
@@ -93,11 +94,11 @@ export class Job {
   lng?: number;
 
   @Column('enum', {
-    enum: () => WorkingModes,
+    enum: WorkingModes,
     name: 'mode',
   })
   @ApiProperty({
-    enum: () => WorkingModes,
+    enum: WorkingModes,
   })
   mode: WorkingModes;
 
@@ -124,19 +125,19 @@ export class Job {
   remuneration: number;
 
   @Column('enum', {
-    enum: () => RemunerationPeriods,
+    enum: RemunerationPeriods,
     default: RemunerationPeriods.Single,
   })
   @ApiProperty({
-    enum: () => RemunerationPeriods,
+    enum: RemunerationPeriods,
   })
   remuneration_period: RemunerationPeriods;
 
   @Column('enum', {
-    enum: () => ContractTypes,
+    enum: ContractTypes,
   })
   @ApiProperty({
-    enum: () => ContractTypes,
+    enum: ContractTypes,
   })
   contract: ContractTypes;
 
@@ -204,6 +205,10 @@ export class Job {
   })
   activity_domain: Relation<ActivityDomain>;
 
+  @Column()
+  @Exclude()
+  activity_domain_id: number;
+
   @ManyToOne(() => Company, (company) => company.jobs, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -213,6 +218,10 @@ export class Job {
     type: () => Company,
   })
   company: Relation<Company>;
+
+  @Column()
+  @Exclude()
+  company_id: string;
 
   @OneToMany(() => Application, (application) => application.job, {
     onDelete: 'CASCADE',

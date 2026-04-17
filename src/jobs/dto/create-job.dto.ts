@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsDateString,
-  IsDecimal,
   IsDefined,
   IsEnum,
   IsInt,
+  IsNumber,
   IsOptional,
   IsPositive,
   IsUrl,
@@ -38,36 +38,41 @@ export class CreateJobDto {
   @IsUrl()
   @IsOptional()
   @MaxLength(250)
+  @ApiProperty({
+    type: 'string',
+    format: 'url',
+    nullable: true,
+  })
   apply_link?: string;
 
-  @IsEnum(() => Languages, {
+  @IsEnum(Languages, {
     each: true,
   })
   @IsDefined()
   @ApiProperty({
     description: 'The language of the job offer',
-    enum: () => Languages,
+    enum: Languages,
     isArray: true,
   })
-  language: Languages[];
+  languages: Languages[];
 
-  @IsDecimal()
+  @IsNumber()
   @IsOptional()
   @Min(0)
   @Max(90)
   lat?: number;
 
-  @IsDecimal()
+  @IsNumber()
   @IsOptional()
   @Min(-180)
   @Max(180)
   lng?: number;
 
-  @IsEnum(() => WorkingModes)
+  @IsEnum(WorkingModes)
   @IsDefined()
   @ApiProperty({
     description: 'The working mode of the job offer',
-    enum: () => WorkingModes,
+    enum: WorkingModes,
   })
   mode: WorkingModes;
 
@@ -79,23 +84,23 @@ export class CreateJobDto {
   @IsUrl()
   scrapped_from?: string;
 
-  @IsDecimal()
+  @IsNumber()
   @Min(0)
   remuneration: number;
 
-  @IsEnum(() => RemunerationPeriods)
+  @IsEnum(RemunerationPeriods)
   @IsDefined()
   @ApiProperty({
     description: 'The remuneration period of the job offer',
-    enum: () => RemunerationPeriods,
+    enum: RemunerationPeriods,
   })
   remuneration_period: RemunerationPeriods;
 
-  @IsEnum(() => ContractTypes)
+  @IsEnum(ContractTypes)
   @IsDefined()
   @ApiProperty({
     description: 'The contract type of the job offer',
-    enum: () => ContractTypes,
+    enum: ContractTypes,
   })
   contract: ContractTypes;
 
@@ -131,7 +136,7 @@ export class CreateJobDto {
   active: boolean;
 
   @IsDefined()
-  @Exists(() => ActivityDomain)
+  @Exists(ActivityDomain)
   @ApiProperty({
     type: 'number',
     description: 'The activity domain of the job offer',
