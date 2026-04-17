@@ -1,8 +1,19 @@
 {
   "name": "fyn_api",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "0.1.0",
+  "description": "The API back-end of Fyn",
+  "authors": [
+    {
+      "name": "Johan",
+      "website": "https://johan-janin.com",
+      "role": "lead-dev"
+    },
+    {
+      "name": "Terence",
+      "website": "https://github.com/Teter24",
+      "role": "dev"
+    }
+  ],
   "private": true,
   "license": "MIT",
   "scripts": {
