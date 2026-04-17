@@ -1,0 +1,21 @@
+export enum Permissions {
+  VIEW_ACCOUNTS = 1 << 0,
+  MANAGE_ACCOUNTS = 1 << 1,
+
+  MANAGE_STUDENTS = 1 << 2,
+
+  VIEW_MANAGED = 1 << 3,
+  MANAGE_MANAGED = 1 << 4,
+
+  VIEW_FORMATIONS = 1 << 5,
+  MANAGE_FORMATIONS = 1 << 6,
+
+  VIEW_EXPERIENCES = 1 << 5,
+  MANAGE_EXPERIENCES = 1 << 6,
+
+  VIEW_ACTIVE_SEARCHES = 1 << 7,
+  MANAGE_ACTIVE_SEARCHES = 1 << 8,
+
+  VIEW_JOBS = 1 << 9,
+  MANAGE_JOBS = 1 << 10,
+}

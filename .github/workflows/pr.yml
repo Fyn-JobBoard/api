@@ -1,0 +1,49 @@
+name: Pull Request Validator
+
+on:
+  pull_request:
+    branches:
+      - dev
+  pull_request_target:
+    branches:
+      - dev
+      - main
+
+jobs:
+  tests:
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup env variables
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: '.github/workflows/ci.env'
+          expand: true
+          export: true
+
+      # Used for postgres to access it
+      - name: Generate en_US.UTF-8 locale
+        run: |
+          sudo locale-gen en_US.UTF-8
+          sudo update-locale LANG=en_US.UTF-8
+
+      - name: Setup a postgres db
+        uses: ikalnytskyi/action-setup-postgres@v8
+        with:
+          database: ${{ env.DB_DATABASE }}
+          password: ${{ env.DB_PASSWORD }}
+          username: ${{ env.DB_USERNAME }}
+          port: ${{ env.DB_PORT }}
+
+      - name: Installing bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Installing deps
+        run: bun install
+
+      - name: Run migrations
+        run: bun orm:connected migration:run
+
+      - name: Launch tests
+        run: bun test
