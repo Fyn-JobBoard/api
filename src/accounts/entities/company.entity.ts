@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
 import { Experience } from 'src/experiences/entities/experience.entity';
 import { Job } from 'src/jobs/entities/job.entity';
@@ -102,4 +103,8 @@ export class Company extends LinkedToAccount {
     type: () => ActivityDomain,
   })
   activity_domain: Relation<ActivityDomain>;
+
+  @Column()
+  @Exclude()
+  activity_domain_id: number;
 }

@@ -114,8 +114,8 @@ export class AccountsService {
 
     const repository = this.getRepositoryOf(this.getRelatedModelOf(type));
     await repository.insert({
-      id: created.id,
       ...dto,
+      id: created.id,
     });
 
     return this.getModelOf(created);

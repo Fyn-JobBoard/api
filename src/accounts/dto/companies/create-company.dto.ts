@@ -46,7 +46,7 @@ export class CreateCompanyDto {
   })
   @IsPositive()
   @IsInt()
-  @Exists(() => ActivityDomain)
+  @Exists(ActivityDomain)
   activity_domain_id: number;
 
   @IsOptional()

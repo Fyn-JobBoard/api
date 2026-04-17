@@ -15,4 +15,7 @@ export enum Permissions {
 
   VIEW_ACTIVE_SEARCHES = 1 << 7,
   MANAGE_ACTIVE_SEARCHES = 1 << 8,
+
+  VIEW_JOBS = 1 << 9,
+  MANAGE_JOBS = 1 << 10,
 }
