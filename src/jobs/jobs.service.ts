@@ -1,30 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { CreateJobDto } from './dto/create-job.dto';
-import { UpdateJobDto } from './dto/update-job.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Job } from './entities/job.entity';
 import { Company } from 'src/accounts/entities/company.entity';
-import { NotFoundException } from '@nestjs/common';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import type { Auth } from 'src/auth/class/auth.class';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { FindOptionsWhere } from 'typeorm';
-import { ILike } from 'typeorm';
-
-export interface PaginatedResult<T> {
-  items: T[];
-  page: number;
-  pages: number;
-}
+import { ILike, Repository } from 'typeorm';
+import { CreateJobDto } from './dto/create-job.dto';
+import { ListJobsResponse } from './dto/list-jobs-response.dto';
+import { UpdateJobDto } from './dto/update-job.dto';
+import { Job } from './entities/job.entity';
 
 @Injectable()
 export class JobsService {
   constructor(@InjectRepository(Job) private readonly jobs: Repository<Job>) {}
-  async create(dto: CreateJobDto, company: Company): Promise<Job> {
+  async create(company: Company, dto: CreateJobDto): Promise<Job> {
     const job = this.jobs.create({
       ...dto,
-      ...(company ? { company } : {}),
+      company,
     });
 
     return this.jobs.save(job);
@@ -33,63 +25,76 @@ export class JobsService {
   async search(
     query: PaginationQueryDto & { search?: string },
     user: Auth,
-  ): Promise<PaginatedResult<Job>> {
+  ): Promise<ListJobsResponse> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
-    const searchQuery = query.search?.trim();
-    const where: FindOptionsWhere<Job> = searchQuery
-      ? { title: ILike(`%${searchQuery}%`) }
-      : {};
+    let sql = this.jobs.createQueryBuilder();
 
-    if (user.type === AccountTypes.Student) {
-      where.active = true;
+    let q: string | undefined;
+    if ((q = query.search?.trim())) {
+      const like = ILike(`%${q}%`);
+      sql
+        .where({
+          title: like,
+        })
+        .orWhere({
+          description: like,
+        });
     }
 
-    const [items, total] = await this.jobs.findAndCount({
-      where,
-      relations: ['company'],
-      order: { id: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    if (user.type === AccountTypes.Student) {
+      sql.andWhere({
+        active: true,
+      });
+    }
 
+    sql
+      .orderBy('id')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .relation('company');
+
+    const [list, total] = await sql.getManyAndCount();
     return {
-      items,
+      list,
       page,
       pages: Math.ceil(total / limit),
     };
   }
 
-  async findOne(id: string): Promise<Job | NotFoundException> {
-    const job = await this.jobs.findOne({
+  async findOne(id: string) {
+    return this.jobs.findOne({
       where: { id },
       relations: ['company'],
     });
-    if (!job) {
-      return new NotFoundException('Job not found');
-    }
-    return job;
   }
 
-  async update(
-    id: string,
-    updateJobDto: UpdateJobDto,
-  ): Promise<Job | NotFoundException> {
-    const job = await this.findOne(id);
-    if (job instanceof NotFoundException) {
-      return job;
+  async update<
+    JobArg extends string | Job,
+    R = JobArg extends string ? Job | NotFoundException : Job,
+  >(job: JobArg, updateJobDto: UpdateJobDto): Promise<R> {
+    const job_to_update = job instanceof Job ? job : await this.findOne(job);
+
+    if (!job_to_update) {
+      return new NotFoundException() as R;
     }
-    Object.assign(job, updateJobDto);
-    return this.jobs.save(job);
+
+    Object.assign(job_to_update, updateJobDto);
+    return this.jobs.save(job_to_update) as R;
   }
 
-  async remove(id: string, job: Job): Promise<Job | NotFoundException> {
-    const existing = await this.findOne(id);
-    if (existing instanceof NotFoundException) {
-      return existing;
+  async remove<
+    JobArg extends string | Job,
+    R = JobArg extends string ? Job | NotFoundException : Job,
+  >(job: JobArg): Promise<R> {
+    const existing = job instanceof Job ? job : await this.findOne(job);
+    if (!existing) {
+      return new NotFoundException() as R;
     }
-    await this.jobs.remove(job);
-    return job;
+
+    await this.jobs.delete(existing.id);
+
+    return existing as R;
   }
 }

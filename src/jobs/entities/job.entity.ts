@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Company } from 'src/accounts/entities/company.entity';
 import { ActivityDomain } from 'src/activity-domains/entities/activity-domain.entity';
 import { Application } from 'src/applications/entities/application.entity';
@@ -21,15 +22,26 @@ import {
 @Entity('jobs')
 export class Job {
   @PrimaryGeneratedColumn('uuid')
+  @ApiProperty({
+    type: 'string',
+    format: 'uuid',
+  })
   id: string;
 
   @Column('varchar', {
     length: 100,
   })
+  @ApiProperty({
+    type: 'string',
+  })
   title: string;
 
   @Column('varchar', {
     length: 4096,
+  })
+  @ApiProperty({
+    type: 'string',
+    format: 'html',
   })
   description: string;
 
@@ -37,18 +49,32 @@ export class Job {
     length: 250,
     nullable: true,
   })
+  @ApiProperty({
+    type: 'string',
+    format: 'url',
+    nullable: true,
+  })
   apply_link?: string;
 
   @Column('enum', {
-    enum: Languages,
-    enumName: 'language',
+    enum: () => Languages,
     array: true,
+  })
+  @ApiProperty({
+    enum: () => Languages,
+    isArray: true,
   })
   languages: Languages[];
 
   @Column('decimal', {
     scale: 4,
     precision: 6,
+    nullable: true,
+  })
+  @ApiProperty({
+    type: 'number',
+    minimum: 0,
+    maximum: 90,
     nullable: true,
   })
   lat?: number;
@@ -58,17 +84,30 @@ export class Job {
     scale: 4,
     nullable: true,
   })
+  @ApiProperty({
+    type: 'number',
+    minimum: -180,
+    maximum: 180,
+    nullable: true,
+  })
   lng?: number;
 
   @Column('enum', {
-    enum: WorkingModes,
-    enumName: 'work_mode',
+    enum: () => WorkingModes,
     name: 'mode',
+  })
+  @ApiProperty({
+    enum: () => WorkingModes,
   })
   mode: WorkingModes;
 
   @Column('varchar', {
     length: 200,
+    nullable: true,
+  })
+  @ApiProperty({
+    type: 'string',
+    format: 'url',
     nullable: true,
   })
   scrapped_from?: string;
@@ -78,22 +117,35 @@ export class Job {
     scale: 2,
     default: 0,
   })
+  @ApiProperty({
+    type: 'number',
+    minimum: 0,
+  })
   remuneration: number;
 
   @Column('enum', {
-    enum: RemunerationPeriods,
-    enumName: 'remuneration_period',
+    enum: () => RemunerationPeriods,
     default: RemunerationPeriods.Single,
+  })
+  @ApiProperty({
+    enum: () => RemunerationPeriods,
   })
   remuneration_period: RemunerationPeriods;
 
   @Column('enum', {
-    enum: ContractTypes,
-    enumName: 'work_contract',
+    enum: () => ContractTypes,
+  })
+  @ApiProperty({
+    enum: () => ContractTypes,
   })
   contract: ContractTypes;
 
   @Column('date', {
+    nullable: true,
+  })
+  @ApiProperty({
+    type: 'string',
+    format: 'date',
     nullable: true,
   })
   period_start?: Date;
@@ -104,6 +156,10 @@ export class Job {
   @Column('int', {
     unsigned: true,
   })
+  @ApiProperty({
+    type: 'number',
+    minimum: 0,
+  })
   period_duration: number;
 
   /**
@@ -113,15 +169,27 @@ export class Job {
     unsigned: true,
     nullable: true,
   })
+  @ApiProperty({
+    type: 'integer',
+    nullable: true,
+    minimum: 0,
+  })
   min_formation_duration?: number;
 
   @Column('boolean', {
     default: false,
   })
+  @ApiProperty({
+    type: 'boolean',
+  })
   active: boolean;
 
   @Column('varchar', {
     length: 1024,
+    nullable: true,
+  })
+  @ApiProperty({
+    type: 'string',
     nullable: true,
   })
   moderation_feedback?: string;
@@ -131,6 +199,9 @@ export class Job {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'activity_domain_id' })
+  @ApiProperty({
+    type: () => ActivityDomain,
+  })
   activity_domain: Relation<ActivityDomain>;
 
   @ManyToOne(() => Company, (company) => company.jobs, {
@@ -138,6 +209,9 @@ export class Job {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'company_id' })
+  @ApiProperty({
+    type: () => Company,
+  })
   company: Relation<Company>;
 
   @OneToMany(() => Application, (application) => application.job, {
