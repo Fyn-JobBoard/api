@@ -1,3 +1,17 @@
-#!/usr/bin/sh
-echo "Starting dev environement through Docker"
-docker compose -f compose.dev.yml up
+#!/usr/bin/env sh
+
+if [ "$NODE_ENV" = "production" ]
+then
+echo Cannot run the dev script when the environement is prod.
+exit 1
+fi
+
+echo "Launching migrations..."
+bun orm:connected migration:run
+if [ ! $? = 0 ]
+then
+exit 1
+fi
+
+echo "Database's structure is up-to-date. Starting the api..."
+bun start:dev $*

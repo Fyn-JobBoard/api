@@ -1,5 +1,8 @@
 FROM oven/bun:alpine AS dev
 
+# To allow healthcheck, we need to curl package
+RUN apk add curl
+
 WORKDIR /app
 
 COPY . .
@@ -8,7 +11,7 @@ RUN bun install
 
 EXPOSE 3000
 
-CMD ["bun", "start:dev"]
+ENTRYPOINT [ "./dev.sh" ]
 
 FROM dev AS prod-build
 
