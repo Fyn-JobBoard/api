@@ -26,6 +26,7 @@ import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorat
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
+import { ILike } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListCompaniesResponseDto } from './dto/companies/list-companies.response.dto';
 import { UpdateCompanyDto } from './dto/companies/update-company.dto';
@@ -58,6 +59,12 @@ export class CompaniesController {
     type: 'integer',
     minimum: 1,
   })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: "Search for companies' email or name",
+    type: 'string',
+  })
   @ApiOkResponse({
     type: ListCompaniesResponseDto,
   })
@@ -71,11 +78,20 @@ export class CompaniesController {
       transform: (v?: string) => parseInt(v ?? ''),
     })
     per_page: number,
+
+    @Query('search')
+    search?: string,
   ) {
     return this.accountsService.listOf(
       Company,
       isNaN(page) ? undefined : Math.max(1, page),
       isNaN(per_page) ? 20 : Math.max(1, per_page),
+      search
+        ? [
+            { name: ILike(`%${search}%`) },
+            { account: { email: ILike(`%${search}%`) } },
+          ]
+        : undefined,
     );
   }
 
