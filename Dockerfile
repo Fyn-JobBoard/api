@@ -19,7 +19,7 @@ ARG KEEP_CONSOLE=0
 ARG KEEP_MAPS=0
 ARG KEEP_TYPES=0
 
-RUN if [ $BUILD_CONSOLE = 0 -o $BUILD_CONSOLE = no ]; then rm -rf console; fi
+RUN if [ $KEEP_CONSOLE = 0 -o $KEEP_CONSOLE = no ]; then rm -rf console; fi
 RUN bun run build
 
 WORKDIR /app/dist
