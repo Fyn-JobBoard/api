@@ -70,13 +70,21 @@ export class ActivityDomainsController {
     name: 'page',
     required: false,
     description: 'page number',
+    type: 'integer',
     example: 1,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     description: 'Items per page',
+    type: 'integer',
     minimum: 1,
+  })
+  @ApiQuery({
+    name: 'query',
+    required: false,
+    description: 'Use a query to search for activity domains',
+    type: 'string',
   })
   @ApiOkResponse({
     description: 'List of activity domains',
@@ -91,10 +99,13 @@ export class ActivityDomainsController {
       transform: (v?: string) => parseInt(v ?? ''),
     })
     limit: number,
+    @Query('query')
+    query?: string,
   ) {
     return this.activityDomainsService.findAllPaginated(
       isNaN(page) ? undefined : Math.max(1, page),
       isNaN(limit) ? 20 : Math.max(1, limit),
+      query,
     );
   }
 

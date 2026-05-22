@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
 import { hash } from 'bcrypt';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { type FindOptionsWhere, Raw, Repository } from 'typeorm';
+import { FindManyOptions, Raw, Repository } from 'typeorm';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/administrators/update-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
@@ -215,7 +215,7 @@ export class AccountsService {
   public async list(
     page: number = 1,
     per_page?: number,
-    where?: FindOptionsWhere<Account>,
+    where?: FindManyOptions<Account>['where'],
   ) {
     if (per_page === undefined) {
       return {
@@ -242,7 +242,7 @@ export class AccountsService {
     type: Model,
     page: number = 1,
     per_page?: number,
-    where?: FindOptionsWhere<InstanceType<Model>>,
+    where?: FindManyOptions<InstanceType<Model>>['where'],
   ) {
     const repository = this.getRepositoryOf<Model>(type);
 
@@ -255,7 +255,8 @@ export class AccountsService {
         }),
       };
     }
-    const amount = await this.accounts.count();
+
+    const amount = await repository.count();
     return {
       page,
       pages: Math.ceil(amount / per_page),

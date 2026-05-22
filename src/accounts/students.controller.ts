@@ -26,6 +26,7 @@ import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorat
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
+import { ILike } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListStudentsResponseDto } from './dto/students/list-students.response.dto';
 import { UpdateStudentDto } from './dto/students/update-student.dto';
@@ -57,6 +58,12 @@ export class StudentsController {
     type: 'integer',
     minimum: 1,
   })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: "Search for student's first/last name or email",
+    type: 'string',
+  })
   @ApiOkResponse({
     type: ListStudentsResponseDto,
   })
@@ -70,11 +77,21 @@ export class StudentsController {
       transform: (v?: string) => parseInt(v ?? ''),
     })
     per_page: number,
+
+    @Query('search')
+    search?: string,
   ) {
     return this.accountsService.listOf(
       Student,
       isNaN(page) ? undefined : Math.max(1, page),
       isNaN(per_page) ? 20 : Math.max(1, per_page),
+      search
+        ? [
+            { first_name: ILike(`%${search}%`) },
+            { last_name: ILike(`%${search}%`) },
+            { account: { email: ILike(`%${search}%`) } },
+          ]
+        : undefined,
     );
   }
 

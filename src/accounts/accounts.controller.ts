@@ -34,6 +34,7 @@ import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-an
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
+import { ILike } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
@@ -80,6 +81,12 @@ export class AccountsController {
     type: 'integer',
     minimum: 1,
   })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: "Search by account's emails",
+    type: 'string',
+  })
   @ApiOkResponse({
     type: ListAccountsResponseDto,
   })
@@ -93,10 +100,18 @@ export class AccountsController {
       transform: (v?: string) => parseInt(v ?? ''),
     })
     per_page: number,
+
+    @Query('search')
+    search?: string,
   ) {
     return this.accountsService.list(
       isNaN(page) ? undefined : Math.max(1, page),
       isNaN(per_page) ? 20 : Math.max(1, per_page),
+      search
+        ? {
+            email: ILike(`%${search}%`),
+          }
+        : undefined,
     );
   }
 
@@ -169,8 +184,8 @@ export class AccountsController {
       student: CreateStudentDto,
     };
 
-    const defined = Object.keys(relatedDtos)
-      .map((key: keyof typeof relatedDtos) => {
+    const defined = (Object.keys(relatedDtos) as (keyof typeof relatedDtos)[])
+      .map((key) => {
         if (!info[key]) {
           return undefined;
         }
