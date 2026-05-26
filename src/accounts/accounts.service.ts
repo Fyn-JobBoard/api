@@ -126,7 +126,8 @@ export class AccountsService {
     });
 
     return Object.assign(new CreateAccountResponseDto(), {
-      account: await this.getModelOf(created),
+      model: await this.getModelOf(created),
+      account: created,
       jwt: await this.authService.jwtOf(created),
     });
   }

@@ -1,4 +1,4 @@
-import { ApiProperty, ApiSchema, OmitType, refs } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema, refs } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
 import { LoginDto, LoginResponseDto } from 'src/auth/dto/login.dto';
@@ -52,12 +52,10 @@ export class CreateAccountDto extends LoginDto {
 @ApiSchema({
   description: 'The object returned when you create your account',
 })
-export class CreateAccountResponseDto extends OmitType(LoginResponseDto, [
-  'account',
-]) {
+export class CreateAccountResponseDto extends LoginResponseDto {
   @ApiProperty({
     oneOf: refs(Student, Administrator, Company, Managed),
     nullable: false,
   })
-  account: Student | Managed | Company | Administrator;
+  model: Student | Managed | Company | Administrator;
 }

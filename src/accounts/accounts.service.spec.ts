@@ -50,11 +50,11 @@ describe('AccountsService', () => {
     });
 
     it('should create a student account', () =>
-      expect(created.account).toBeInstanceOf(Student));
+      expect(created.model).toBeInstanceOf(Student));
 
     it('should hash password', () =>
-      expect(created.account.account.password).not.toStrictEqual(PASSWORD));
+      expect(created.account.password).not.toStrictEqual(PASSWORD));
 
-    afterEach(() => service.delete(created.account.account));
+    afterEach(() => service.delete(created.account));
   });
 });
