@@ -69,5 +69,8 @@ export abstract class LinkedToAccount {
   @JoinColumn({
     name: 'id',
   })
+  @ApiProperty({
+    type: () => Account,
+  })
   account: Relation<Account>;
 }

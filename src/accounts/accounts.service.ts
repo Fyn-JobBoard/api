@@ -1,18 +1,23 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import assert from 'assert';
 import { hash } from 'bcrypt';
+import { AuthService } from 'src/auth/auth.service';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { FindManyOptions, Raw, Repository } from 'typeorm';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { UpdateAdministratorDto } from './dto/administrators/update-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
 import { UpdateCompanyDto } from './dto/companies/update-company.dto';
-import { CreateAccountDto } from './dto/create-account.dto';
+import {
+  CreateAccountDto,
+  CreateAccountResponseDto,
+} from './dto/create-account.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
 import { UpdateManagedDto } from './dto/managed/update-managed.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
@@ -29,6 +34,8 @@ export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accounts: Repository<Account>,
+    @Inject(AuthService)
+    private readonly authService: AuthService,
   ) {}
 
   protected getRelatedModelOf(type: AccountTypes): AccountModel {
@@ -89,7 +96,7 @@ export class AccountsService {
       | CreateAdministratorDto
       | CreateCompanyDto
       | CreateManagedDto,
-  ) {
+  ): Promise<CreateAccountResponseDto> {
     const type =
       dto instanceof CreateStudentDto
         ? AccountTypes.Student
@@ -118,7 +125,10 @@ export class AccountsService {
       id: created.id,
     });
 
-    return this.getModelOf(created);
+    return Object.assign(new CreateAccountResponseDto(), {
+      account: await this.getModelOf(created),
+      jwt: await this.authService.jwtOf(created),
+    });
   }
 
   public async update(

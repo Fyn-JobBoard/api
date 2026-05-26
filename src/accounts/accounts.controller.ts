@@ -25,7 +25,6 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
-  refs,
 } from '@nestjs/swagger';
 import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
@@ -38,7 +37,10 @@ import { ILike } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
-import { CreateAccountDto } from './dto/create-account.dto';
+import {
+  CreateAccountDto,
+  CreateAccountResponseDto,
+} from './dto/create-account.dto';
 import { ListAccountsResponseDto } from './dto/list-accounts.response.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
@@ -161,12 +163,10 @@ export class AccountsController {
   })
   @Version('1')
   @ApiOkResponse({
-    schema: {
-      oneOf: refs(Student, Administrator, Company, Managed),
-    },
+    type: CreateAccountResponseDto,
   })
   @ApiBody({
-    type: CreateAccountDto,
+    type: () => CreateAccountResponseDto,
     description:
       "Note that you must provide exactly one of 'student', 'admin', 'company' or 'managed'.",
   })
