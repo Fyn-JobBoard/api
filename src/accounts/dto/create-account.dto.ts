@@ -55,7 +55,6 @@ export class CreateAccountDto extends LoginDto {
 export class CreateAccountResponseDto extends LoginResponseDto {
   @ApiProperty({
     oneOf: refs(Student, Administrator, Company, Managed),
-    nullable: false,
   })
   model: Student | Managed | Company | Administrator;
 }
