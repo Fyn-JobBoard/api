@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { ActiveSearch } from 'src/active-searches/entities/active-search.entity';
 import { Application } from 'src/applications/entities/application.entity';
 import { Experience } from 'src/experiences/entities/experience.entity';
@@ -69,40 +70,28 @@ export class Student extends LinkedToAccount {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @ApiProperty({
-    type: () => Application,
-    isArray: true,
-  })
+  @Exclude()
   applications: Relation<Application>[];
 
   @OneToMany(() => ActiveSearch, (search) => search.student, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @ApiProperty({
-    type: () => ActiveSearch,
-    isArray: true,
-  })
+  @Exclude()
   activeSearches: Relation<ActiveSearch>[];
 
   @OneToMany(() => Experience, (experience) => experience.student, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @ApiProperty({
-    type: () => Experience,
-    isArray: true,
-  })
+  @Exclude()
   experiences: Relation<Experience>[];
 
   @OneToMany(() => Formation, (formation) => formation.student, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @ApiProperty({
-    type: () => Formation,
-    isArray: true,
-  })
+  @Exclude()
   formations: Relation<Formation>[];
 
   @ManyToMany(() => Skill, (skill) => skill.students, {
@@ -118,9 +107,6 @@ export class Student extends LinkedToAccount {
       name: 'student_id',
     },
   })
-  @ApiProperty({
-    type: () => Skill,
-    isArray: true,
-  })
+  @Exclude()
   skills: Relation<Skill>[];
 }

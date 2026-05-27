@@ -4,7 +4,7 @@ import { Company } from 'src/accounts/entities/company.entity';
 import type { Auth } from 'src/auth/class/auth.class';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { ILike, Repository } from 'typeorm';
+import { FindOptionsRelations, ILike, Repository } from 'typeorm';
 import { CreateJobDto } from './dto/create-job.dto';
 import { ListJobsResponse } from './dto/list-jobs-response.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -23,7 +23,7 @@ export class JobsService {
   }
 
   async search(
-    query: PaginationQueryDto & { search?: string },
+    query: PaginationQueryDto & { search?: string; company_id?: string },
     user: Auth,
   ): Promise<ListJobsResponse> {
     const sql = this.jobs.createQueryBuilder();
@@ -46,6 +46,12 @@ export class JobsService {
       });
     }
 
+    if (query.company_id) {
+      sql.andWhere({
+        company_id: query.company_id,
+      });
+    }
+
     sql
       .orderBy('id')
       .skip((query.page - 1) * query.limit)
@@ -60,10 +66,13 @@ export class JobsService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(
+    id: string,
+    relations: FindOptionsRelations<Job> = { company: true },
+  ) {
     return this.jobs.findOne({
       where: { id },
-      relations: ['company'],
+      relations,
     });
   }
 
