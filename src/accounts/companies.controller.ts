@@ -24,8 +24,10 @@ import {
 import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
+import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
+import { Permissions } from 'src/common/enums/permissions';
 import { ILike } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListCompaniesResponseDto } from './dto/companies/list-companies.response.dto';
@@ -121,6 +123,10 @@ export class CompaniesController {
 
   @Put('/:id')
   @UseGuards(IsLoggedGuard)
+  @IsA([AccountTypes.Company, AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_COMPANIES),
+  })
   @Version('1')
   @ApiOkResponse({
     type: Company,
@@ -145,7 +151,7 @@ export class CompaniesController {
     @AuthAccount()
     auth: Auth,
   ) {
-    if (!(auth.type === AccountTypes.Admin || auth.id === id)) {
+    if (auth.type === AccountTypes.Company && auth.id !== id) {
       throw new ForbiddenException();
     }
 
