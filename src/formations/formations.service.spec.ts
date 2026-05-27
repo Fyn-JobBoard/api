@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountsService } from 'src/accounts/accounts.service';
+import { AccountsModule } from 'src/accounts/accounts.module';
 import { Account } from 'src/accounts/entities/account.entity';
 import appDatasource from 'src/app.datasource';
 import { Formation } from './entities/formation.entity';
@@ -12,10 +12,11 @@ describe('FormationsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        AccountsModule,
         TypeOrmModule.forRoot(appDatasource.options),
         TypeOrmModule.forFeature([Formation, Account]),
       ],
-      providers: [FormationsService, AccountsService],
+      providers: [FormationsService],
     }).compile();
 
     service = module.get<FormationsService>(FormationsService);

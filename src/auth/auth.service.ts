@@ -5,6 +5,7 @@ import { hash } from 'bcryptjs';
 import { Account } from 'src/accounts/entities/account.entity';
 import { Repository } from 'typeorm';
 import { Auth } from './class/auth.class';
+import { LoginResponseDto } from './dto/login.dto';
 import { JWTContent } from './types/jwt-content';
 
 @Injectable()
@@ -106,19 +107,16 @@ export class AuthService {
   public async loginIn(
     email: string,
     password: string,
-  ): Promise<null | {
-    account: Account;
-    jwt: string;
-  }> {
+  ): Promise<null | LoginResponseDto> {
     const account = await this.authenticate({ email, password }).then((auth) =>
       auth?.account(),
     );
 
     return account
-      ? {
+      ? Object.assign(new LoginResponseDto(), {
           account,
           jwt: await this.jwtOf(account),
-        }
+        })
       : null;
   }
 }
