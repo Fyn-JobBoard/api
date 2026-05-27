@@ -13,5 +13,8 @@ then
 exit 1
 fi
 
-echo "Database's structure is up-to-date. Starting the api..."
+echo "Database's structure is up-to-date. Using env:"
+printenv
+
+echo "Starting the api..."
 bun start:prod $*
