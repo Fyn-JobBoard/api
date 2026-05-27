@@ -20,4 +20,6 @@ export enum Permissions {
   MANAGE_JOBS = 1 << 10,
 
   MANAGE_COMPANIES = 1 << 11,
+
+  VIEW_APPLICATIONS = 1 << 12,
 }
