@@ -45,9 +45,6 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return {
-      jwt: account.jwt,
-      account,
-    };
+    return account;
   }
 }
