@@ -22,4 +22,6 @@ export enum Permissions {
   MANAGE_COMPANIES = 1 << 11,
 
   VIEW_APPLICATIONS = 1 << 12,
+
+  MANAGE_ACTIVITY_DOMAINS = 1 << 13,
 }
