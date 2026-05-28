@@ -166,7 +166,7 @@ export class AccountsController {
     type: CreateAccountResponseDto,
   })
   @ApiBody({
-    type: () => CreateAccountResponseDto,
+    type: () => CreateAccountDto,
     description:
       "Note that you must provide exactly one of 'student', 'admin', 'company' or 'managed'.",
   })
