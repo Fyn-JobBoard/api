@@ -1,9 +1,6 @@
 name: Pull Request Validator
 
 on:
-  pull_request:
-    branches:
-      - dev
   pull_request_target:
     branches:
       - dev

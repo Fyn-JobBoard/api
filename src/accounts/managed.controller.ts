@@ -32,7 +32,7 @@ import PermissionManager, {
   COMPANIES_PERMISSIONS,
   STUDENTS_PERMISSIONS,
 } from 'src/common/utils/permissionManager';
-import { Raw } from 'typeorm';
+import { FindOptionsWhere, ILike, Raw } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListManagedResponseDto } from './dto/managed/list-managed.response.dto';
 import { UpdateManagedDto } from './dto/managed/update-managed.dto';
@@ -78,6 +78,12 @@ export class ManagedController {
     format: 'uuid',
     nullable: true,
   })
+  @ApiQuery({
+    name: 'search',
+    description: "Search for managed's names or email",
+    required: false,
+    type: 'string',
+  })
   @ApiOperation({
     description: 'List the managed accounts you own',
   })
@@ -99,6 +105,9 @@ export class ManagedController {
 
     @Query('author_id')
     author_id?: string,
+
+    @Query('search')
+    search?: string,
   ) {
     if (
       author_id &&
@@ -114,15 +123,22 @@ export class ManagedController {
 
     author_id ??= auth.id;
 
+    const base_where: FindOptionsWhere<Managed> = {
+      author: {
+        id: Raw((column) => `(${column})::text = :id`, { id: author_id }),
+      },
+    };
+
     return await this.accountsService.listOf(
       Managed,
       isNaN(page) ? undefined : page,
       isNaN(per_page) ? 20 : per_page,
-      {
-        author: {
-          id: Raw((column) => `(${column})::text = :id`, { id: author_id }),
-        },
-      },
+      search
+        ? [
+            { ...base_where, name: ILike(`%${search}%`) },
+            { ...base_where, account: { email: ILike(`%${search}%`) } },
+          ]
+        : base_where,
     );
   }
 

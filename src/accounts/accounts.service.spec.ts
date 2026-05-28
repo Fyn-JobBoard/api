@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import appDatasource from 'src/app.datasource';
+import { AuthModule } from 'src/auth/auth.module';
 import { AccountsService } from './accounts.service';
-import { CreateAccountDto } from './dto/create-account.dto';
+import {
+  CreateAccountDto,
+  type CreateAccountResponseDto,
+} from './dto/create-account.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
 import { Account } from './entities/account.entity';
-import { Administrator } from './entities/admin.entity';
-import { Company } from './entities/company.entity';
-import { Managed } from './entities/managed.entity';
 import { Student } from './entities/student.entity';
 
 describe('AccountsService', () => {
@@ -16,6 +17,7 @@ describe('AccountsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        AuthModule,
         TypeOrmModule.forRoot(appDatasource.options),
         TypeOrmModule.forFeature([Account]),
       ],
@@ -30,7 +32,7 @@ describe('AccountsService', () => {
   });
 
   describe('should create account properly', () => {
-    let created: Student | Managed | Company | Administrator;
+    let created: CreateAccountResponseDto;
     const PASSWORD = 'abcd1234';
     const student_dto = Object.assign(new CreateStudentDto(), {
       first_name: 'Test',
@@ -48,7 +50,7 @@ describe('AccountsService', () => {
     });
 
     it('should create a student account', () =>
-      expect(created).toBeInstanceOf(Student));
+      expect(created.model).toBeInstanceOf(Student));
 
     it('should hash password', () =>
       expect(created.account.password).not.toStrictEqual(PASSWORD));

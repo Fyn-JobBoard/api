@@ -25,7 +25,6 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
-  refs,
 } from '@nestjs/swagger';
 import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
@@ -34,10 +33,14 @@ import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-an
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
+import { ILike } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { CreateAdministratorDto } from './dto/administrators/create-administrator.dto';
 import { CreateCompanyDto } from './dto/companies/create-company.dto';
-import { CreateAccountDto } from './dto/create-account.dto';
+import {
+  CreateAccountDto,
+  CreateAccountResponseDto,
+} from './dto/create-account.dto';
 import { ListAccountsResponseDto } from './dto/list-accounts.response.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
@@ -80,6 +83,12 @@ export class AccountsController {
     type: 'integer',
     minimum: 1,
   })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: "Search by account's emails",
+    type: 'string',
+  })
   @ApiOkResponse({
     type: ListAccountsResponseDto,
   })
@@ -93,10 +102,18 @@ export class AccountsController {
       transform: (v?: string) => parseInt(v ?? ''),
     })
     per_page: number,
+
+    @Query('search')
+    search?: string,
   ) {
     return this.accountsService.list(
       isNaN(page) ? undefined : Math.max(1, page),
       isNaN(per_page) ? 20 : Math.max(1, per_page),
+      search
+        ? {
+            email: ILike(`%${search}%`),
+          }
+        : undefined,
     );
   }
 
@@ -146,12 +163,10 @@ export class AccountsController {
   })
   @Version('1')
   @ApiOkResponse({
-    schema: {
-      oneOf: refs(Student, Administrator, Company, Managed),
-    },
+    type: CreateAccountResponseDto,
   })
   @ApiBody({
-    type: CreateAccountDto,
+    type: () => CreateAccountResponseDto,
     description:
       "Note that you must provide exactly one of 'student', 'admin', 'company' or 'managed'.",
   })
@@ -169,8 +184,8 @@ export class AccountsController {
       student: CreateStudentDto,
     };
 
-    const defined = Object.keys(relatedDtos)
-      .map((key: keyof typeof relatedDtos) => {
+    const defined = (Object.keys(relatedDtos) as (keyof typeof relatedDtos)[])
+      .map((key) => {
         if (!info[key]) {
           return undefined;
         }

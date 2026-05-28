@@ -1,6 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
@@ -16,10 +16,15 @@ export class ActivityDomainsService {
     return this.activityDomains.save(activityDomain);
   }
 
-  async findAllPaginated(page = 1, limit = 20) {
+  async findAllPaginated(page = 1, limit = 20, query?: string) {
     const [items, total] = await this.activityDomains.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
+      where: query
+        ? {
+            name: ILike(`%${query}%`),
+          }
+        : undefined,
     });
 
     return {

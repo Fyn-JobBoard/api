@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { AccountsService } from 'src/accounts/accounts.service';
 import { Company } from 'src/accounts/entities/company.entity';
+import { Application } from 'src/applications/entities/application.entity';
 import { Auth } from 'src/auth/class/auth.class';
 import {
   AuthAccount,
@@ -128,6 +129,13 @@ export class JobsController {
     description: 'Number of items per page for pagination',
     example: 20,
   })
+  @ApiQuery({
+    name: 'company_id',
+    required: false,
+    description: 'Filter by company',
+    format: 'uuid',
+    type: 'string',
+  })
   @ApiOkResponse({
     description: 'List of job offers',
     type: ListJobsResponse,
@@ -145,12 +153,14 @@ export class JobsController {
     limit: number,
     @Query('search')
     search?: string,
+    @Query('company_id')
+    company_id?: string,
   ) {
     if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
       throw new BadRequestException();
     }
 
-    return this.jobsService.search({ page, limit, search }, user);
+    return this.jobsService.search({ page, limit, search, company_id }, user);
   }
 
   @Get('/:job_id')
@@ -179,6 +189,43 @@ export class JobsController {
     }
 
     return job;
+  }
+
+  @Get('/:job_id/applications')
+  @Version('1')
+  @IsA([AccountTypes.Company, AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.VIEW_APPLICATIONS),
+  })
+  @ApiOperation({
+    summary: "Get a job's applications",
+  })
+  @ApiOkResponse({
+    type: Application,
+    isArray: true,
+  })
+  async applications(
+    @Param('job_id')
+    job_id: string,
+
+    @Authenticated()
+    auth: Auth,
+  ) {
+    const job = await this.jobsService.findOne(job_id, { applications: true });
+    if (!job) {
+      throw new NotFoundException();
+    }
+
+    if (
+      !(
+        [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type) ||
+        job.company.id === auth.id
+      )
+    ) {
+      throw new UnauthorizedException();
+    }
+
+    return job.applications;
   }
 
   @Put('/:job_id')

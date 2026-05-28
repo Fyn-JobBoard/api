@@ -2,22 +2,20 @@ import { input, select } from '@inquirer/prompts';
 import { OmitType } from '@nestjs/swagger';
 import { validateSync } from 'class-validator';
 import { select as multiselect } from 'inquirer-select-pro';
-import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
 import { CreateManagedDto } from 'src/accounts/dto/managed/create-managed.dto';
-import { Account } from 'src/accounts/entities/account.entity';
 import appDatasource from 'src/app.datasource';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { Permissions } from 'src/common/enums/permissions';
 import { DataSource } from 'typeorm';
+import { accountService } from './_utils';
 
 export async function create_managed_account(
   datasource: DataSource,
   accountDto = new CreateAccountDto(),
   managedDto = new CreateManagedDto(),
 ) {
-  const repository = datasource.getRepository(Account);
-  const accountService = new AccountsService(repository);
+  const service = accountService(datasource);
 
   accountDto.email ??= await input({
     message: 'Email address ?',
@@ -49,7 +47,7 @@ export async function create_managed_account(
     message: "Account's author ?",
     choices: [
       { value: undefined, name: '[System]' },
-      ...(await accountService.list().then((list) =>
+      ...(await service.list().then((list) =>
         list.list.map((account) => ({
           value: account.id,
           name: account.email,
@@ -65,11 +63,11 @@ export async function create_managed_account(
       .filter(([, value]) => typeof value === 'number')
       .map(([name, value]) => ({
         name,
-        value,
+        value: value as number,
       })),
   }).then((arr) => arr.reduce((cur, pre: Permissions) => cur + pre, 0));
 
-  return accountService.create(accountDto, managedDto);
+  return service.create(accountDto, managedDto);
 }
 
 if (process.argv[1] === __filename) {

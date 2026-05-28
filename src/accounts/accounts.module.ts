@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from 'src/auth/auth.module';
 import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
 import { CompaniesController } from './companies.controller';
@@ -20,6 +21,7 @@ import { StudentsController } from './students.controller';
       Managed,
       Administrator,
     ]),
+    AuthModule,
   ],
   controllers: [
     StudentsController,

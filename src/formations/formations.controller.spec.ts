@@ -7,6 +7,7 @@ import { ExistsConstraint } from 'src/common/validators/exists/exists.constraint
 import { Formation } from './entities/formation.entity';
 import { FormationsController } from './formations.controller';
 import { FormationsService } from './formations.service';
+import { AccountsModule } from 'src/accounts/accounts.module';
 
 describe('FormationsController', () => {
   let controller: FormationsController;
@@ -14,11 +15,12 @@ describe('FormationsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        AccountsModule,
         TypeOrmModule.forRoot(appDatasource.options),
         TypeOrmModule.forFeature([Formation, Account]),
       ],
       controllers: [FormationsController],
-      providers: [FormationsService, AccountsService, ExistsConstraint],
+      providers: [FormationsService, ExistsConstraint],
     }).compile();
 
     controller = module.get<FormationsController>(FormationsController);

@@ -1,47 +1,49 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Param,
+  Controller,
   Delete,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
   Put,
   Query,
-  UseInterceptors,
   UploadedFile,
-  NotFoundException,
-  ForbiddenException,
+  UseGuards,
+  UseInterceptors,
+  Version,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBasicAuth,
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { diskStorage } from 'multer';
 import assert from 'node:assert';
+import { extname } from 'path';
+import { Student } from 'src/accounts/entities/student.entity';
+import type { Auth } from 'src/auth/class/auth.class';
+import { Authenticated } from 'src/auth/decorators/getters/account/account.decorator';
+import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
+import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
+import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { AccountTypes } from 'src/common/enums/accountTypes';
+import { ApplicationStatus } from 'src/common/enums/applicationStatus';
+import { Permissions } from 'src/common/enums/permissions';
+import { Job } from 'src/jobs/entities/job.entity';
+import { Repository } from 'typeorm';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
-import {
-  ApiBearerAuth,
-  ApiBasicAuth,
-  ApiResponse,
-  ApiOperation,
-  ApiBody,
-  ApiParam,
-} from '@nestjs/swagger';
-import { Version } from '@nestjs/common';
 import { Application } from './entities/application.entity';
-import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
-import { AccountTypes } from 'src/common/enums/accountTypes';
-import { UseGuards } from '@nestjs/common';
-import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Job } from 'src/jobs/entities/job.entity';
-import { Student } from 'src/accounts/entities/student.entity';
-import { ApplicationStatus } from 'src/common/enums/applicationStatus';
-import { Authenticated } from 'src/auth/decorators/getters/account/account.decorator';
-import type { Auth } from 'src/auth/class/auth.class';
 
 @UseGuards(IsLoggedGuard)
 @Controller('applications')
@@ -119,7 +121,10 @@ export class ApplicationsController {
 
   @Get('/')
   @Version('1')
-  @IsA([AccountTypes.Admin])
+  @IsA([AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.VIEW_APPLICATIONS),
+  })
   @ApiOperation({ summary: 'Get all applications with pagination' })
   async findAll(@Query() query: PaginationQueryDto) {
     return this.applicationsService.findAll(query);

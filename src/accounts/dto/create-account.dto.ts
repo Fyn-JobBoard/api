@@ -1,7 +1,11 @@
-import { ApiProperty, ApiSchema } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema, refs } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
-import { LoginDto } from 'src/auth/dto/login.dto';
+import { LoginDto, LoginResponseDto } from 'src/auth/dto/login.dto';
+import { Administrator } from '../entities/admin.entity';
+import { Company } from '../entities/company.entity';
+import { Managed } from '../entities/managed.entity';
+import { Student } from '../entities/student.entity';
 import { CreateAdministratorDto } from './administrators/create-administrator.dto';
 import { CreateCompanyDto } from './companies/create-company.dto';
 import { CreateManagedDto } from './managed/create-managed.dto';
@@ -43,4 +47,14 @@ export class CreateAccountDto extends LoginDto {
     required: false,
   })
   admin?: CreateAdministratorDto;
+}
+
+@ApiSchema({
+  description: 'The object returned when you create your account',
+})
+export class CreateAccountResponseDto extends LoginResponseDto {
+  @ApiProperty({
+    oneOf: refs(Student, Administrator, Company, Managed),
+  })
+  model: Student | Managed | Company | Administrator;
 }

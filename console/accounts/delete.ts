@@ -1,15 +1,13 @@
 import { select } from '@inquirer/prompts';
-import { AccountsService } from 'src/accounts/accounts.service';
-import { Account } from 'src/accounts/entities/account.entity';
 import appDatasource from 'src/app.datasource';
 import { DataSource } from 'typeorm';
+import { accountService } from './_utils';
 
 export async function delete_account(datasource: DataSource, id?: string) {
-  const repository = datasource.getRepository(Account);
-  const accountService = new AccountsService(repository);
+  const service = accountService(datasource);
 
   const choices = [
-    ...(await accountService.list().then((list) =>
+    ...(await service.list().then((list) =>
       list.list.map((account) => ({
         value: account.id,
         name: `${account.email} (${account.type})`,
@@ -27,7 +25,7 @@ export async function delete_account(datasource: DataSource, id?: string) {
     choices,
   });
 
-  return accountService.delete(id);
+  return service.delete(id);
 }
 
 if (process.argv[1] === __filename) {
