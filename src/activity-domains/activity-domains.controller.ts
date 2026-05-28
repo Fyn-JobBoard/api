@@ -23,8 +23,10 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
+import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
+import { Permissions } from 'src/common/enums/permissions';
 import { ActivityDomainsService } from './activity-domains.service';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
@@ -46,9 +48,13 @@ export class ActivityDomainsController {
   @Version('1')
   @ApiOperation({
     summary: 'Create a new activity domain',
-    description: 'Only admin can create a new activity domain',
+    description:
+      'Only admin or special managed accounts can create a new activity domain',
   })
-  @IsA([AccountTypes.Admin])
+  @IsA([AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_ACTIVITY_DOMAINS),
+  })
   @ApiBody({ type: CreateActivityDomainDto })
   @ApiOkResponse({
     description: 'The created activity domain',
@@ -134,9 +140,13 @@ export class ActivityDomainsController {
   @Version('1')
   @ApiOperation({
     summary: 'Update an activity domain',
-    description: 'Only admin can update an activity domain',
+    description:
+      'Only admin or special managed accounts can update an activity domain',
   })
-  @IsA([AccountTypes.Admin])
+  @IsA([AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_ACTIVITY_DOMAINS),
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiBody({ type: UpdateActivityDomainDto })
   @ApiOkResponse({
@@ -163,9 +173,13 @@ export class ActivityDomainsController {
   @Version('1')
   @ApiOperation({
     summary: 'Delete an activity domain',
-    description: 'Only admin can delete an activity domain',
+    description:
+      'Only admin or special managed accounts can delete an activity domain',
   })
-  @IsA([AccountTypes.Admin])
+  @IsA([AccountTypes.Admin, AccountTypes.Managed])
+  @IsManagedAnd({
+    permissions: (perms) => perms.hasAll(Permissions.MANAGE_ACTIVITY_DOMAINS),
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiOkResponse({
     description: 'The deleted activity domain',
