@@ -1,21 +1,19 @@
 import { input } from '@inquirer/prompts';
 import { OmitType } from '@nestjs/swagger';
 import { validateSync } from 'class-validator';
-import { AccountsService } from 'src/accounts/accounts.service';
 import { CreateAdministratorDto } from 'src/accounts/dto/administrators/create-administrator.dto';
 import { CreateAccountDto } from 'src/accounts/dto/create-account.dto';
-import { Account } from 'src/accounts/entities/account.entity';
 import appDatasource from 'src/app.datasource';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { DataSource } from 'typeorm';
+import { accountService } from './_utils';
 
 export async function create_admin_account(
   datasource: DataSource,
   accountDto = new CreateAccountDto(),
   adminDto = new CreateAdministratorDto(),
 ) {
-  const repository = datasource.getRepository(Account);
-  const accountService = new AccountsService(repository);
+  const service = accountService(datasource);
 
   accountDto.email ??= await input({
     message: 'Email address ?',
@@ -48,7 +46,7 @@ export async function create_admin_account(
     required: true,
   });
 
-  return accountService.create(accountDto, adminDto);
+  return service.create(accountDto, adminDto);
 }
 
 if (process.argv[1] === __filename) {
