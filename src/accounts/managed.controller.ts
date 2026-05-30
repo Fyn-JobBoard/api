@@ -225,7 +225,7 @@ export class ManagedController {
         );
         assert(model instanceof Managed);
 
-        if (!model.checkPermissions().satisfies(dto.permissions ?? 0)) {
+        if (!model.checkPermissions().hasAll(dto.permissions ?? 0)) {
           throw deniedPermissionSetException;
         }
 
@@ -234,7 +234,7 @@ export class ManagedController {
 
       case AccountTypes.Company: {
         if (
-          !new PermissionManager(dto.permissions ?? 0).satisfies(
+          !new PermissionManager(dto.permissions ?? 0).hasAll(
             COMPANIES_PERMISSIONS,
           )
         ) {
@@ -246,7 +246,7 @@ export class ManagedController {
 
       case AccountTypes.Student: {
         if (
-          !new PermissionManager(dto.permissions ?? 0).satisfies(
+          !new PermissionManager(dto.permissions ?? 0).hasAll(
             STUDENTS_PERMISSIONS,
           )
         ) {

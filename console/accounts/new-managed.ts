@@ -65,7 +65,7 @@ export async function create_managed_account(
         name,
         value: value as number,
       })),
-  }).then((arr) => arr.reduce((cur, pre: Permissions) => cur + pre, 0));
+  }).then((arr) => arr.reduce((cur, pre: Permissions) => cur | pre, 0));
 
   return service.create(accountDto, managedDto);
 }
