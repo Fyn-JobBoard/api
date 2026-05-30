@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  ConflictException,
+  HttpException,
   Inject,
   Injectable,
   NotFoundException,
@@ -96,7 +98,7 @@ export class AccountsService {
       | CreateAdministratorDto
       | CreateCompanyDto
       | CreateManagedDto,
-  ): Promise<CreateAccountResponseDto> {
+  ): Promise<CreateAccountResponseDto | HttpException> {
     const type =
       dto instanceof CreateStudentDto
         ? AccountTypes.Student
@@ -108,6 +110,12 @@ export class AccountsService {
               ? AccountTypes.Managed
               : null;
     assert(type);
+
+    if (await this.accounts.existsBy({ email: account.email })) {
+      return new ConflictException(
+        'Email address already in use. Please login.',
+      );
+    }
 
     const insertion = await this.accounts.insert({
       ...account,
