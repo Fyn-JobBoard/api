@@ -32,7 +32,7 @@ import PermissionManager, {
   COMPANIES_PERMISSIONS,
   STUDENTS_PERMISSIONS,
 } from 'src/common/utils/permissionManager';
-import { FindOptionsWhere, ILike, Raw } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Raw } from 'typeorm';
 import { AccountsService } from './accounts.service';
 import { ListManagedResponseDto } from './dto/managed/list-managed.response.dto';
 import { UpdateManagedDto } from './dto/managed/update-managed.dto';
@@ -73,10 +73,9 @@ export class ManagedController {
     name: 'author_id',
     required: false,
     description:
-      'Usable only by authorized accounts to retreive managed only for certain users',
+      'Usable only by authorized accounts to retreive managed only for certain users. Use "system" to show only system managed accounts.',
     type: 'string',
-    format: 'uuid',
-    nullable: true,
+    format: 'uuid|"system"',
   })
   @ApiQuery({
     name: 'search',
@@ -109,25 +108,25 @@ export class ManagedController {
     @Query('search')
     search?: string,
   ) {
-    if (
-      author_id &&
-      !(
-        author_id === auth.id ||
-        [AccountTypes.Admin, AccountTypes.Managed].includes(auth.type)
-      )
-    ) {
-      throw new UnauthorizedException(
-        "You don't have the permission to list other account's manageds.",
-      );
+    if (![AccountTypes.Admin, AccountTypes.Managed].includes(auth.type)) {
+      if (author_id && author_id !== auth.id) {
+        throw new UnauthorizedException(
+          "You don't have the permission to list other account's manageds.",
+        );
+      } else {
+        author_id = auth.id;
+      }
     }
 
-    author_id ??= auth.id;
-
-    const base_where: FindOptionsWhere<Managed> = {
-      author: {
-        id: Raw((column) => `(${column})::text = :id`, { id: author_id }),
-      },
-    };
+    const base_where: FindOptionsWhere<Managed> = {};
+    if (author_id) {
+      base_where['author'] =
+        author_id === 'system'
+          ? IsNull()
+          : {
+              id: Raw((column) => `(${column})::text = :id`, { id: author_id }),
+            };
+    }
 
     return await this.accountsService.listOf(
       Managed,
