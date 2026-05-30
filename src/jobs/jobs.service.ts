@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from 'src/accounts/entities/company.entity';
 import type { Auth } from 'src/auth/class/auth.class';
@@ -13,7 +18,22 @@ import { Job } from './entities/job.entity';
 @Injectable()
 export class JobsService {
   constructor(@InjectRepository(Job) private readonly jobs: Repository<Job>) {}
-  async create(company: Company, dto: CreateJobDto): Promise<Job> {
+  async create(
+    company: Company,
+    dto: CreateJobDto,
+  ): Promise<Job | HttpException> {
+    // Check if a similar jobs already exists for this company
+    if (
+      await this.jobs.existsBy({
+        company,
+        title: ILike(dto.title),
+      })
+    ) {
+      return new ConflictException(
+        'Similar job already exists for this company',
+      );
+    }
+
     const job = this.jobs.create({
       ...dto,
       company,
