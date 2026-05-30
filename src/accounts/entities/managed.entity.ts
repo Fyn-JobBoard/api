@@ -43,7 +43,7 @@ export class Managed extends LinkedToAccount {
   })
   author?: Relation<Account>;
 
-  @Column('bigint', {
+  @Column('int', {
     unsigned: true,
     default: '0',
   })
