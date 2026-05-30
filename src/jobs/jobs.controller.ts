@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   NotFoundException,
   Param,
   Post,
@@ -89,7 +90,12 @@ export class JobsController {
       throw new NotFoundException();
     }
 
-    return this.jobsService.create(company, dto);
+    const created = this.jobsService.create(company, dto);
+    if (created instanceof HttpException) {
+      throw created;
+    }
+
+    return created;
   }
 
   @Post('/')

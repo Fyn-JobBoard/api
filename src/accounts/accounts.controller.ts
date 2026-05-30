@@ -216,7 +216,12 @@ export class AccountsController {
       }
     }
 
-    return await this.accountsService.create(info, defined[0]);
+    const created = await this.accountsService.create(info, defined[0]);
+    if (created instanceof HttpException) {
+      throw created;
+    }
+
+    return created;
   }
 
   @Delete('/:id')
