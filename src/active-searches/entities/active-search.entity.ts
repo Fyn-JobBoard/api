@@ -22,6 +22,7 @@ export class ActiveSearch {
   @ManyToOne(() => Student, (student) => student.activeSearches, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'student_id' })
   @ApiProperty({
