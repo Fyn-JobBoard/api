@@ -198,6 +198,7 @@ export class Job {
   @ManyToOne(() => ActivityDomain, (activityDomain) => activityDomain.jobs, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'activity_domain_id' })
   @ApiProperty({
@@ -212,6 +213,7 @@ export class Job {
   @ManyToOne(() => Company, (company) => company.jobs, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'company_id' })
   @ApiProperty({
@@ -232,6 +234,7 @@ export class Job {
   @ManyToMany(() => Tag, (tag) => tag.jobs, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinTable({
     name: 'job_tags',
