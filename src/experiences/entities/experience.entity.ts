@@ -48,6 +48,7 @@ export class Experience {
   @ManyToOne(() => Student, (student) => student.experiences, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'student_id' })
   @ApiProperty({
@@ -59,6 +60,7 @@ export class Experience {
     nullable: true,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'company_id' })
   @ApiProperty({

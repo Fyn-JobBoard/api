@@ -61,6 +61,7 @@ export class Formation {
   @ManyToOne(() => Student, (student) => student.formations, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'student_id' })
   @ApiProperty({
@@ -72,6 +73,7 @@ export class Formation {
     nullable: true,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'activity_domain_id' })
   @ApiProperty({
