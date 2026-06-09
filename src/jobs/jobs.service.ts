@@ -46,7 +46,7 @@ export class JobsService {
     query: PaginationQueryDto & { search?: string; company_id?: string },
     user: Auth,
   ): Promise<ListJobsResponse> {
-    const sql = this.jobs.createQueryBuilder();
+    const sql = this.jobs.createQueryBuilder('job');
 
     let q: string | undefined;
     if ((q = query.search?.trim())) {
@@ -73,10 +73,11 @@ export class JobsService {
     }
 
     sql
-      .orderBy('id')
+      .orderBy('job.id')
       .skip((query.page - 1) * query.limit)
       .take(query.limit)
-      .relation('company');
+      .leftJoinAndSelect('job.activity_domain', 'activity_domain')
+      .leftJoinAndSelect('job.company', 'company');
 
     const [list, total] = await sql.getManyAndCount();
     return {
