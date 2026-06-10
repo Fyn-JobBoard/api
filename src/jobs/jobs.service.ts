@@ -77,7 +77,8 @@ export class JobsService {
       .skip((query.page - 1) * query.limit)
       .take(query.limit)
       .leftJoinAndSelect('job.activity_domain', 'activity_domain')
-      .leftJoinAndSelect('job.company', 'company');
+      .leftJoinAndSelect('job.company', 'company')
+      .leftJoinAndSelect('job.tags', 'tags');
 
     const [list, total] = await sql.getManyAndCount();
     return {
