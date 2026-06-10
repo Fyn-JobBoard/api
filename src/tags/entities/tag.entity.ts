@@ -26,10 +26,10 @@ export class Tag {
   @JoinTable({
     name: 'job_tags',
     joinColumn: {
-      name: 'job_id',
+      name: 'tag_id',
     },
     inverseJoinColumn: {
-      name: 'tag_id',
+      name: 'job_id',
     },
   })
   jobs: Relation<Job>[];

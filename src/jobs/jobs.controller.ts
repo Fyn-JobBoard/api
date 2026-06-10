@@ -90,7 +90,7 @@ export class JobsController {
       throw new NotFoundException();
     }
 
-    const created = this.jobsService.create(company, dto);
+    const created = await this.jobsService.create(company, dto);
     if (created instanceof HttpException) {
       throw created;
     }
