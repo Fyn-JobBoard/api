@@ -4,9 +4,10 @@ services:
   db:
     image: postgres:18-alpine
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_DB=fyn
-      - POSTGRES_USER=postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: fyn
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ''
     volumes:
       - db-data:/var/lib/postgresql/18
     ports:
@@ -38,8 +39,7 @@ services:
     expose:
       - 3000
     healthcheck:
-      test:
-        ['CMD', 'curl', '-sfo', '/dev/null', 'http://localhost:3000/v1']
+      test: ['CMD', 'curl', '-sfo', '/dev/null', 'http://localhost:3000/v1']
       start_interval: 3s
       start_period: 10s
       interval: 5s
