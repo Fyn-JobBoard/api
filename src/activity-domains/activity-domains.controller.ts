@@ -29,6 +29,7 @@ import { AccountTypes } from 'src/common/enums/accountTypes';
 import { Permissions } from 'src/common/enums/permissions';
 import { ActivityDomainsService } from './activity-domains.service';
 import { CreateActivityDomainDto } from './dto/create-activity-domain.dto';
+import { ListActivityDomainResponseDto } from './dto/list-activity-domain-response.dto';
 import { UpdateActivityDomainDto } from './dto/update-activity-domain.dto';
 import { ActivityDomain } from './entities/activity-domain.entity';
 @UseGuards(IsLoggedGuard)
@@ -94,7 +95,7 @@ export class ActivityDomainsController {
   })
   @ApiOkResponse({
     description: 'List of activity domains',
-    type: ActivityDomain,
+    type: ListActivityDomainResponseDto,
   })
   findAll(
     @Query('page', {
