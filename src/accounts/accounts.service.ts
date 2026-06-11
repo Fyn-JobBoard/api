@@ -67,7 +67,6 @@ export class AccountsService {
       id: Raw((alias) => `(${alias})::text = :id`, { id }),
     });
   }
-
   public async findModel<Model extends AccountModel>(
     id: string,
     model: Model,
