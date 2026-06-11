@@ -68,10 +68,6 @@ export class AccountsService {
     });
   }
 
-  public async jwtOf(account: Account) {
-    return this.authService.jwtOf(account);
-  }
-
   public async findModel<Model extends AccountModel>(
     id: string,
     model: Model,
