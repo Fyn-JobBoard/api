@@ -177,7 +177,7 @@ export class JobsController {
     description: 'The requested job offer',
     type: Job,
   })
-  async findOne(@Param('id') job_id: string, @Authenticated() user: Auth) {
+  async findOne(@Param('job_id') job_id: string, @Authenticated() user: Auth) {
     const job = await this.jobsService.findOne(job_id);
     if (!job) {
       throw new NotFoundException();
