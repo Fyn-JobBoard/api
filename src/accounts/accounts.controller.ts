@@ -117,6 +117,26 @@ export class AccountsController {
     );
   }
 
+  @Get('/me')
+  @UseGuards(IsLoggedGuard)
+  @Version('1')
+  public async getMe(
+    @AuthAccount()
+    auth: Auth,
+  ) {
+    const account = await auth.account();
+
+    return Object.assign(
+      {},
+      {
+        jwt: await this.accountsService.jwtOf(account),
+        accountTypes: Object.values(AccountTypes),
+        account,
+        model: await this.accountsService.getModelOf(account),
+      },
+    );
+  }
+
   @Get('/:id')
   @UseGuards(IsLoggedGuard)
   @IsManagedAnd({
