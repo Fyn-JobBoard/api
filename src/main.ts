@@ -7,6 +7,12 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import pkg from '../package.json';
+import {
+  MeRouteAsAdministratorResponse,
+  MeRouteAsCompanyResponse,
+  MeRouteAsManagedResponse,
+  MeRouteAsStudentResponse,
+} from './accounts/dto/me.response.dto';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -30,6 +36,15 @@ async function bootstrap() {
         .addBasicAuth()
         .addBearerAuth()
         .build(),
+      {
+        extraModels: [
+          // Don't know why this models are not detected by NestJS's Swagger
+          MeRouteAsAdministratorResponse,
+          MeRouteAsManagedResponse,
+          MeRouteAsCompanyResponse,
+          MeRouteAsStudentResponse,
+        ],
+      },
     ),
   );
 

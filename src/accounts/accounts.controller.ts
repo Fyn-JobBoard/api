@@ -25,6 +25,7 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
+  refs,
 } from '@nestjs/swagger';
 import type { Auth } from 'src/auth/class/auth.class';
 import { AuthAccount } from 'src/auth/decorators/getters/account/account.decorator';
@@ -43,6 +44,13 @@ import {
 } from './dto/create-account.dto';
 import { ListAccountsResponseDto } from './dto/list-accounts.response.dto';
 import { CreateManagedDto } from './dto/managed/create-managed.dto';
+import {
+  MeRouteAsAdministratorResponse,
+  MeRouteAsCompanyResponse,
+  MeRouteAsManagedResponse,
+  MeRouteAsStudentResponse,
+  MeRouteResponse,
+} from './dto/me.response.dto';
 import { CreateStudentDto } from './dto/students/create-student.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account } from './entities/account.entity';
@@ -115,6 +123,47 @@ export class AccountsController {
           }
         : undefined,
     );
+  }
+
+  @Get('/me')
+  @UseGuards(IsLoggedGuard)
+  @Version('1')
+  @ApiOperation({
+    description: 'Get your account.',
+  })
+  @ApiOkResponse({
+    schema: {
+      oneOf: refs(
+        MeRouteAsAdministratorResponse,
+        MeRouteAsCompanyResponse,
+        MeRouteAsStudentResponse,
+        MeRouteAsManagedResponse,
+      ),
+    },
+  })
+  public async getMe(
+    @AuthAccount()
+    auth: Auth,
+  ): Promise<MeRouteResponse> {
+    const account = await auth.account();
+    const model = await this.accountsService.getModelOf(account);
+
+    const classMapper = {
+      [AccountTypes.Admin]: MeRouteAsAdministratorResponse,
+      [AccountTypes.Company]: MeRouteAsCompanyResponse,
+      [AccountTypes.Managed]: MeRouteAsManagedResponse,
+      [AccountTypes.Student]: MeRouteAsStudentResponse,
+    } satisfies Record<AccountTypes, new () => MeRouteResponse>;
+
+    const response: MeRouteResponse = Object.assign(
+      new classMapper[account.type](),
+      {
+        ...model,
+        account,
+      },
+    );
+
+    return response;
   }
 
   @Get('/:id')
