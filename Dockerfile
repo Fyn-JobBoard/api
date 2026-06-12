@@ -3,7 +3,7 @@ FROM oven/bun:alpine AS dev
 # To allow healthcheck, we need to curl package
 RUN apk add curl
 
-WORKDIR /app
+WORKDIR /api
 
 COPY . .
 
@@ -22,7 +22,7 @@ ARG KEEP_TYPES=0
 RUN if [ $KEEP_CONSOLE = 0 -o $KEEP_CONSOLE = no ]; then rm -rf console; fi
 RUN bun run build
 
-WORKDIR /app/dist
+WORKDIR /api/dist
 
 RUN if [ $KEEP_MAPS = 0 -o $KEEP_MAPS = no ]; then (\
   find . \( \( -path "./src/**" -o -path "./db/**" \) -a -name "*.map" \) -delete;\
@@ -34,10 +34,10 @@ RUN if [ $KEEP_TYPES = 0 -o $KEEP_TYPES = no ]; then (\
 
 FROM oven/bun:slim AS prod
 
-WORKDIR /app
+WORKDIR /api
 
-COPY --from=prod-build /app/dist .
-COPY --from=prod-build /app/prod.sh .
+COPY --from=prod-build /api/dist .
+COPY --from=prod-build /api/prod.sh .
 
 RUN bun install --production
 
