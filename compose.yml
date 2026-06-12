@@ -1,21 +1,18 @@
-name: Fyn API - Developpement
+name: Fyn API - Production
 
 services:
   db:
     image: postgres:18-alpine
     environment:
-      POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: fyn
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ''
+      POSTGRES_USER: fynprod
+      POSTGRES_PASSWORD: 'DBPassword-1234'
     volumes:
-      - db-data:/var/lib/postgresql/18
-    ports:
-      - 5432:5432
+      - db-data-prod:/var/lib/postgresql/18
     expose:
       - 5432
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d fyn']
+      test: ['CMD-SHELL', 'pg_isready -U fynprod -d fyn']
       interval: 2s
       timeout: 3s
       retries: 5
@@ -24,14 +21,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: dev
     env_file:
-      - .env
+      - .env.production.local
     environment:
       DB_HOST: db
-    volumes:
-      - ./src:/app/src
-      - ./db:/app/db
     depends_on:
       db:
         condition: service_healthy
@@ -46,4 +39,4 @@ services:
       interval: 5s
 
 volumes:
-  db-data:
+  db-data-prod:
