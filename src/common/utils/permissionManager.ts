@@ -25,19 +25,6 @@ export default class PermissionManager {
   hasNone(...permissions: number[]): boolean {
     return !this.hasAny(...permissions);
   }
-  /**
-   * Returns `true` if the current permissions is lower than highest merged given ones.
-   *
-   * Exemples:
-   * current | checkers | result
-   * ---|---|---
-   * `10011` | `10111`,`00110` | `true`
-   * `10111` | `10011`,`01010` | `false`
-   */
-  satisfies(...permissions: number[]): boolean {
-    const mask = PermissionManager.mask(...permissions);
-    return !(this.base_permission & ~mask);
-  }
 
   grant(...permissions: number[]): this {
     const mask = PermissionManager.mask(...permissions);
