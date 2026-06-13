@@ -3,6 +3,9 @@ name: Fyn API - Developpement
 services:
   db:
     image: postgres:18-alpine
+    env_file:
+      - path: .postgres.env
+        required: false
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: fyn
@@ -26,7 +29,8 @@ services:
       dockerfile: Dockerfile
       target: dev
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       DB_HOST: db
     volumes:
