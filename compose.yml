@@ -3,6 +3,9 @@ name: Fyn API - Production
 services:
   db:
     image: postgres:18-alpine
+    env_file:
+      - path: postgres.env.production.local
+        required: false
     environment:
       POSTGRES_DB: fyn
       POSTGRES_USER: fynprod
@@ -21,6 +24,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - path: .env.production.local
+        required: false
     environment:
       DB_HOST: db
     depends_on:

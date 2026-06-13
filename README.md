@@ -10,7 +10,7 @@ This container will auto update files from `./src`.
 cp .env{.example,}
 
 # After you've edited the variables
-docker compose -f compose.dev.yml --env-file .env up
+docker compose -f compose.dev.yml up
 ```
 
 ## Without Docker
