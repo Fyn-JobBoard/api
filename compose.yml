@@ -21,8 +21,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env.production.local
     environment:
       DB_HOST: db
     depends_on:
