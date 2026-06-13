@@ -8,18 +8,21 @@ export async function calculate_permissions() {
     options: Object.entries(Permissions)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, perm]) => typeof perm === 'number')
-      .map(([name, value]: [string, Permissions]) => ({
+      .map(([name, value]) => ({
         name,
-        value,
+        value: value as number,
       })),
   });
 
-  const permission = choices.reduce((pre, cur) => pre + cur, 0);
-  console.log(
-    `Calculated permission: ${permission} (0b${permission.toString(2)}).`,
-  );
+  return choices.reduce((pre, cur) => pre | cur, 0);
 }
 
 if (process.argv[1] === __filename) {
-  calculate_permissions().catch(console.error);
+  calculate_permissions()
+    .then((permission) => {
+      console.log(
+        `Calculated permission: ${permission} (0b${permission.toString(2)}).`,
+      );
+    })
+    .catch(console.error);
 }
