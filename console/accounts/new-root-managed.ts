@@ -11,7 +11,7 @@ export async function create_root_managed_account(
   managedDto = new CreateManagedDto(),
 ) {
   managedDto.permissions = Object.values(Permissions).reduce(
-    (pre, cur) => pre + (typeof cur === 'number' ? cur : 0),
+    (pre, cur) => pre | (typeof cur === 'number' ? cur : 0),
     0,
   );
 
