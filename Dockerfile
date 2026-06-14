@@ -46,4 +46,7 @@ ENV NODE_PATH=.
 
 EXPOSE 3000
 
+# Get the curl utility for health check
+RUN apt update -y && apt install -y curl
+
 ENTRYPOINT [ "./prod.sh" ]
