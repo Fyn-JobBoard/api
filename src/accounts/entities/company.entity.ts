@@ -66,10 +66,10 @@ export class Company extends LinkedToAccount {
   @ApiProperty({
     type: 'string',
     format: 'url',
-    nullable: true,
+    required: false,
     maxLength: 200,
   })
-  website_url: string;
+  website_url?: string;
 
   @OneToMany(() => Job, (job) => job.company, {
     onDelete: 'CASCADE',

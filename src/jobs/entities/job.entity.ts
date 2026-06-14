@@ -53,7 +53,7 @@ export class Job {
   @ApiProperty({
     type: 'string',
     format: 'url',
-    nullable: true,
+    required: false,
   })
   apply_link?: string;
 
@@ -76,7 +76,7 @@ export class Job {
     type: 'number',
     minimum: 0,
     maximum: 90,
-    nullable: true,
+    required: false,
   })
   lat?: number;
 
@@ -89,7 +89,7 @@ export class Job {
     type: 'number',
     minimum: -180,
     maximum: 180,
-    nullable: true,
+    required: false,
   })
   lng?: number;
 
@@ -109,7 +109,7 @@ export class Job {
   @ApiProperty({
     type: 'string',
     format: 'url',
-    nullable: true,
+    required: false,
   })
   scrapped_from?: string;
 
@@ -147,7 +147,7 @@ export class Job {
   @ApiProperty({
     type: 'string',
     format: 'date',
-    nullable: true,
+    required: false,
   })
   period_start?: Date;
 
@@ -172,8 +172,8 @@ export class Job {
   })
   @ApiProperty({
     type: 'integer',
-    nullable: true,
     minimum: 0,
+    required: false,
   })
   min_formation_duration?: number;
 
@@ -191,7 +191,7 @@ export class Job {
   })
   @ApiProperty({
     type: 'string',
-    nullable: true,
+    required: false,
   })
   moderation_feedback?: string;
 
@@ -229,6 +229,7 @@ export class Job {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
+  @Exclude()
   applications: Relation<Application>[];
 
   @ManyToMany(() => Tag, (tag) => tag.jobs, {
@@ -244,6 +245,10 @@ export class Job {
     inverseJoinColumn: {
       name: 'tag_id',
     },
+  })
+  @ApiProperty({
+    type: () => Tag,
+    isArray: true,
   })
   tags: Relation<Tag>[];
 }
