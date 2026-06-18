@@ -41,7 +41,7 @@ export class CreateJobDto {
   @ApiProperty({
     type: 'string',
     format: 'url',
-    nullable: true,
+    required: false,
   })
   apply_link?: string;
 
