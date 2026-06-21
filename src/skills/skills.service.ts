@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from 'src/accounts/entities/student.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateSkillDto } from './dto/create-skill.dto';
+import { ListSkillsDto } from './dto/list-skills.response.dto';
 import { Skill } from './entities/skill.entity';
 
 @Injectable()
@@ -15,7 +16,7 @@ export class SkillsService {
     page: number = 1,
     per_page?: number,
     where?: FindOptionsWhere<Skill>,
-  ) {
+  ): Promise<ListSkillsDto> {
     if (per_page === undefined) {
       return {
         page: 1,
@@ -26,7 +27,7 @@ export class SkillsService {
       };
     }
     const amount = await this.skills.count();
-    return {
+    return Object.assign(new ListSkillsDto(), {
       page,
       pages: Math.ceil(amount / per_page),
       list: await this.skills.find({
@@ -34,7 +35,7 @@ export class SkillsService {
         take: per_page,
         where,
       }),
-    };
+    });
   }
 
   public async find(id: number) {
