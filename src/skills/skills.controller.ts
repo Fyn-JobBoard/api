@@ -78,6 +78,12 @@ export class SkillsController {
     type: 'integer',
     minimum: 1,
   })
+  @ApiQuery({
+    name: 'student_id',
+    required: false,
+    type: 'string',
+    format: 'uuid',
+  })
   @ApiOperation({
     description: 'Find skills based on their name and/or type',
   })
@@ -97,13 +103,24 @@ export class SkillsController {
 
     @Query('name')
     name?: string,
+
+    @Query('student_id')
+    student_id?: string,
+
     @Query('type')
     type?: SkillTypes,
   ) {
+    let student: Student | null = null;
+    if (student_id) {
+      student = await this.account.findModel(student_id, Student);
+      if (!student) {
+        throw new NotFoundException();
+      }
+    }
     return this.service.list(
       isNaN(page) ? undefined : page,
       isNaN(per_page) ? 20 : per_page,
-      { name, type },
+      { name, type, students: student ?? undefined },
     );
   }
 
