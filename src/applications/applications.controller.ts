@@ -20,6 +20,7 @@ import {
   ApiBasicAuth,
   ApiBearerAuth,
   ApiBody,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -42,6 +43,7 @@ import { Job } from 'src/jobs/entities/job.entity';
 import { Repository } from 'typeorm';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
+import { ListApplicationsResponseDto } from './dto/list.response.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 import { Application } from './entities/application.entity';
 
@@ -126,9 +128,13 @@ export class ApplicationsController {
     permissions: (perms) => perms.hasAll(Permissions.VIEW_APPLICATIONS),
   })
   @ApiOperation({ summary: 'Get all applications with pagination' })
+  @ApiOkResponse({
+    type: ListApplicationsResponseDto,
+  })
   async findAll(@Query() query: PaginationQueryDto) {
     return this.applicationsService.findAll(query);
   }
+
   @Get('/mine')
   @Version('1')
   @IsA([AccountTypes.Student])
@@ -137,7 +143,7 @@ export class ApplicationsController {
   })
   @ApiResponse({
     description: 'List of applications of the authenticated student',
-    type: [Application],
+    type: ListApplicationsResponseDto,
   })
   async findMine(
     @Authenticated() user: Auth,

@@ -1,16 +1,17 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
-import { CreateApplicationDto } from './dto/create-application.dto';
-import { UpdateApplicationDto } from './dto/update-application.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Application } from './entities/application.entity';
-import { Job } from 'src/jobs/entities/job.entity';
 import { Student } from 'src/accounts/entities/student.entity';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { Job } from 'src/jobs/entities/job.entity';
+import { Repository } from 'typeorm';
+import { CreateApplicationDto } from './dto/create-application.dto';
+import { ListApplicationsResponseDto } from './dto/list.response.dto';
+import { UpdateApplicationDto } from './dto/update-application.dto';
+import { Application } from './entities/application.entity';
 
 @Injectable()
 export class ApplicationsService {
@@ -40,40 +41,34 @@ export class ApplicationsService {
 
     return this.applications.save(application);
   }
-  async findAll(query: PaginationQueryDto): Promise<{
-    items: Application[];
-    page: number;
-    pages: number;
-  }> {
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<ListApplicationsResponseDto> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
-    const [items, total] = await this.applications.findAndCount({
+    const [list, total] = await this.applications.findAndCount({
       relations: ['student', 'job', 'job.company'],
       order: { id: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    return {
-      items,
+    return Object.assign(new ListApplicationsResponseDto(), {
+      list,
       page,
       pages: Math.ceil(total / limit),
-    };
+    });
   }
 
   async findByStudent(
     studentId: string,
     query: PaginationQueryDto,
-  ): Promise<{
-    items: Application[];
-    page: number;
-    pages: number;
-  }> {
+  ): Promise<ListApplicationsResponseDto> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
-    const [items, total] = await this.applications.findAndCount({
+    const [list, total] = await this.applications.findAndCount({
       where: {
         student: { id: studentId },
       },
@@ -83,11 +78,11 @@ export class ApplicationsService {
       take: limit,
     });
 
-    return {
-      items,
+    return Object.assign(new ListApplicationsResponseDto(), {
+      list,
       page,
       pages: Math.ceil(total / limit),
-    };
+    });
   }
 
   async findOne(id: string): Promise<Application> {
