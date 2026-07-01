@@ -9,7 +9,8 @@ import { Company } from 'src/accounts/entities/company.entity';
 import type { Auth } from 'src/auth/class/auth.class';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { AccountTypes } from 'src/common/enums/accountTypes';
-import { FindOptionsRelations, ILike, Repository } from 'typeorm';
+import { ContractTypes } from 'src/common/enums/contractTypes';
+import { FindOptionsRelations, ILike, In, Repository } from 'typeorm';
 import { CreateJobDto } from './dto/create-job.dto';
 import { ListJobsResponse } from './dto/list-jobs-response.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -43,7 +44,12 @@ export class JobsService {
   }
 
   async search(
-    query: PaginationQueryDto & { search?: string; company_id?: string },
+    query: PaginationQueryDto & {
+      search?: string;
+      company_id?: string;
+      activity_domain_ids?: number[];
+      contract?: ContractTypes;
+    },
     user: Auth,
   ): Promise<ListJobsResponse> {
     const sql = this.jobs.createQueryBuilder('job');
@@ -69,6 +75,18 @@ export class JobsService {
     if (query.company_id) {
       sql.andWhere({
         company_id: query.company_id,
+      });
+    }
+
+    if (query.activity_domain_ids?.length) {
+      sql.andWhere({
+        activity_domain: { id: In(query.activity_domain_ids) },
+      });
+    }
+
+    if (query.contract) {
+      sql.andWhere({
+        contract: query.contract,
       });
     }
 

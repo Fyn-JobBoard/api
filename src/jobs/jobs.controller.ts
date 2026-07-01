@@ -7,6 +7,8 @@ import {
   HttpException,
   NotFoundException,
   Param,
+  ParseArrayPipe,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -36,6 +38,7 @@ import { IsA } from 'src/auth/guards/is-logged/decorators/is-a/is-a.decorator';
 import { IsManagedAnd } from 'src/auth/guards/is-logged/decorators/is-managed-and/is-managed-and.decorator';
 import { IsLoggedGuard } from 'src/auth/guards/is-logged/is-logged.guard';
 import { AccountTypes } from 'src/common/enums/accountTypes';
+import { ContractTypes } from 'src/common/enums/contractTypes';
 import { Permissions } from 'src/common/enums/permissions';
 import { CreateJobDto } from './dto/create-job.dto';
 import { ListJobsResponse } from './dto/list-jobs-response.dto';
@@ -142,6 +145,17 @@ export class JobsController {
     format: 'uuid',
     type: 'string',
   })
+  @ApiQuery({
+    name: 'domain_ids',
+    required: false,
+    isArray: true,
+    type: 'integer',
+  })
+  @ApiQuery({
+    name: 'contract_type',
+    required: false,
+    type: () => ContractTypes,
+  })
   @ApiOkResponse({
     description: 'List of job offers',
     type: ListJobsResponse,
@@ -161,12 +175,29 @@ export class JobsController {
     search?: string,
     @Query('company_id')
     company_id?: string,
+    @Query(
+      'domain_ids',
+      new ParseArrayPipe({ items: ParseIntPipe, optional: true }),
+    )
+    activity_domain_ids?: number[],
+    @Query('contract_type')
+    contract?: ContractTypes,
   ) {
     if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
       throw new BadRequestException();
     }
 
-    return this.jobsService.search({ page, limit, search, company_id }, user);
+    return this.jobsService.search(
+      {
+        page,
+        limit,
+        search,
+        company_id,
+        activity_domain_ids,
+        contract,
+      },
+      user,
+    );
   }
 
   @Get('/:job_id')
